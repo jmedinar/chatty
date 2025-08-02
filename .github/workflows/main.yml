@@ -17,17 +17,16 @@ jobs:
 
     steps:
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      # - name: Checkout Repository
+      #   uses: actions/checkout@v4
+      #   with:
+      #     fetch-depth: 0
 
-      - name: Make project files available in container
-        # The checkout action puts the code in GITHUB_WORKSPACE on the host.
-        # This step mounts that host path into the container.
-        run: |
-          mkdir -p /github/workspace
-          cp -r ${{ github.workspace }}/* /github/workspace/
+      - name: Clone repository in the container
+        uses: GuillaumeFalourd/clone-github-repo-action@v2.3
+        with:
+          depth: 1
+          repository: 'b'
 
       - name: Install Build Dependencies
         run: |
@@ -41,6 +40,9 @@ jobs:
 
       - name: Commit and Push RPM to Branch
         run: |
+          # Access the cloned repo
+          cd b
+
           # Configure Git with the GitHub Actions user name and email
           git config --global user.name "jmedinar"
           git config --global user.email "jmedinar@gmail.com"
