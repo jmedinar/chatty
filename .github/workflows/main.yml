@@ -1,6 +1,7 @@
+---
 # .github/workflows/rpm-build.yml
 
-name: Build RPM and Push Artifacts
+name: Build RPM Artifacts
 
 on:
   push:
@@ -38,3 +39,4 @@ jobs:
           git add RPMS/*.rpm
           git commit -m "Feat: Add new RPM release for ${{ github.ref_name }}"
           git push
+...
