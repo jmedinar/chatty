@@ -1,7 +1,7 @@
 ---
 # .github/workflows/rpm-build.yml
 
-name: Build RPM Artifacts
+name: Build RPM and Push Artifacts
 
 on:
   push:
@@ -21,7 +21,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
- 
+
+      - name: Make project files available in container
+        # The checkout action puts the code in GITHUB_WORKSPACE on the host.
+        # This step mounts that host path into the container.
+        run: |
+          mkdir -p /github/workspace
+          cp -r ${{ github.workspace }}/* /github/workspace/
+
       - name: Install Build Dependencies
         run: |
           dnf install -yqq rpm-build python3-pyyaml tar gzip findutils git
