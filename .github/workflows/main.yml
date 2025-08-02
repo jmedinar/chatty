@@ -1,8 +1,7 @@
 # .github/workflows/rpm-build.yml
 
-name: Build RPM and Create PR
+name: Build RPM and Push Artifacts
 
-# This workflow runs on a push to any branch except 'main'.
 on:
   push:
     branches-ignore:
@@ -10,7 +9,6 @@ on:
 
 jobs:
   build_rpm:
-    # Use a RHEL 9-based container to ensure compatibility with your build environment.
     runs-on: ubuntu-latest
     container: 
       image: fedora:latest
@@ -20,43 +18,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          # Fetch the full git history for correct versioning.
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Build Dependencies
-        # Use dnf, the standard package manager for RHEL-based systems.
         run: |
-          dnf install -y rpm-build python3-pyyaml tar gzip findutils
+          dnf install -y rpm-build python3-pyyaml tar gzip findutils git
       
       - name: Make Build Script Executable
         run: chmod +x build_rpm.sh
 
       - name: Run RPM Build Script
-        # This will create the .rpm file and place it in the local 'RPMS/' directory.
         run: ./build_rpm.sh
-      
-      - name: Create Pull Request with RPM Artifact
-        # This action will handle committing the new file and creating a PR for you.
-        id: create-pr
-        uses: actions/create-pull-request@v6
-        with:
-          # This is the base branch the PR will merge into.
-          base: main
-          # This is the branch where the changes will be committed.
-          branch: 'rpm-release-pr'
-          # Use the repository's GITHUB_TOKEN to authenticate.
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Feat: Add new RPM release for ${{ github.ref_name }}"
-          title: "New RPM release for ${{ github.ref_name }}"
-          body: |
-            This is an automated pull request to add a new RPM package to the repository.
-            
-            - **Built from branch:** `${{ github.ref_name }}`
-            - **Commit SHA:** `${{ github.sha }}`
-            
-            Please review the generated RPM file and approve this pull request to merge it into `main`.
-          add-paths: 'RPMS/*.rpm'
-          
-      - name: Check for PR link
-        if: steps.create-pr.outputs.pull-request-number
-        run: echo "Pull Request created: ${{ steps.create-pr.outputs.pull-request-url }}"
+
+      - name: Commit and Push RPM to Branch
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add RPMS/*.rpm
+          git commit -m "Feat: Add new RPM release for ${{ github.ref_name }}"
+          git push
