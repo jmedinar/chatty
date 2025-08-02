@@ -16,6 +16,7 @@ jobs:
       options: --user root
 
     steps:
+
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
@@ -32,14 +33,17 @@ jobs:
         run: ./build_rpm.sh
 
       - name: Commit and Push RPM to Branch
-        uses: stefan-schweiger/git-auto-commit-action@v1
-        with:
-          commit_message: "Feat: Add new RPM release for ${{ github.ref_name }}"
-          add_options: 'RPMS/*.rpm'
-        # run: |
-        #   git config --global user.name "jmedinar"
-        #   git config --global user.email "jmedinar@gmail.com"
-        #   git add RPMS/*.rpm
-        #   git commit -m "Feat: Add new RPM release for ${{ github.ref_name }}"
-        #   git push
+        run: |
+          # Configure Git with the GitHub Actions user name and email
+          git config --global user.name "jmedinar"
+          git config --global user.email "jmedinar@gmail.com"
+
+          # Add the newly built RPM files
+          git add RPMS/*.rpm
+
+          # Commit the changes
+          git commit -m "Feat: Add new RPM release for ${{ github.ref_name }}"
+
+          # Push the changes, authenticating with the GITHUB_TOKEN
+          git push "https://${{ secrets._GITHUB_TOKEN }}@github.com/${{ github.repository }}" HEAD:${{ github.ref_name }}
 ...
