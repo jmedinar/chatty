@@ -1,6 +1,6 @@
 = ChaTTY: Interactive Linux Learning Framework
 :author: Juan Medina jmedina@collin.edu
-:revnumber: 1.0.0
+:revnumber: 1.0.1
 :revdate: 2025-07-29
 :toc: left
 :toclevels: 2
