@@ -1,0 +1,6 @@
+{
+    "yaml.schemas": {
+        "file:///home/jumedina/.vscode/extensions/docsmsft.docs-yaml-1.0.5/dist/toc.schema.json": "/toc\\.yml/i",
+        "https://www.schemastore.org/yamllint.json": "file:///home/jumedina/repos/chatty/tasks/module1.yml"
+    }
+}

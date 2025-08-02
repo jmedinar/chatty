@@ -1,0 +1,210 @@
+# yaml-language-server: $schema=https://schemastore.org/yamllint.json
+# Example format and required fields
+  # - name: 
+  #   description: 
+  #   action: 
+  #   verification: 
+  #   exit_code: 
+---
+title: Linux Fundamentals
+section: Finding files
+tasks:
+
+  - name: Using the locate command
+    description: |
+      The `locate` command is used to find files on a Linux system by searching
+      a pre-built database.
+
+      The database is updated periodically, so a newly created file might not
+      show up immediately.
+
+      You can force the re-creation of the database by running the command:
+        `updatedb`
+    action: |
+      Use `locate` to find the location of the `zip` command.
+        `locate zip`
+      Count the occurrences
+        `locate -c zip`
+      Let's be more specific by looking only into the /bin directory and count the occurrences:
+        `locate -c /bin/zip`
+      Now, limit the results to 10
+        `locate -n 10 /bin/zip`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (basics!)
+    description: |
+      The `find` command is a powerful utility for searching the filesystem.
+      Unlike `locate`, `find` searches live, from the point in the directory
+      tree that you specify. This makes it more accurate for finding recently
+      created files.
+
+      Its basic format is `find [starting_directory] [expression]`.
+    action: |
+      Let's use `find` to search for a file in your home directory.
+
+      `find ~ -name ".bashrc"`
+
+      This command tells `find` to start searching in your home directory (`~`)
+      and look for a file with the exact name `.bashrc`.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (multiple locations)
+    description: |
+      You can search multiple locations at once by listing the starting
+      directories as separate arguments. The `find` command will search
+      through each one in the order you provide.
+    action: |
+      Let's use `find` to search for a file in both the `/etc/` and your home (`~`)
+      directories at the same time. Run the following command:
+
+      `find /etc ~ -name "passwd"`
+
+      The command will first search `/etc` and then search your home directory.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-name and -iname)
+    description: |
+      The `-name` option is used to find files with a specific name, and it is
+      case-sensitive. For a case-insensitive search, use the `-iname` option.
+      You can also use wildcards like `*` and `?` for pattern matching.
+    action: |
+      Let's use `-iname` to find a file in your home directory.
+      
+      1. Create a file named `temp_File.txt` in your home directory:
+         `touch ~/Temp_File.txt`
+      2. Use `find` with `-iname` to find it, ignoring case:
+         `find ~ -iname "temp_file.txt"`
+      3. Use `find` with `-name` to find it using a regular expression:
+         `find ~ -name "Temp*.txt`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-user, -group, -uid, and -gid)
+    description: |
+      You can search for files based on ownership.
+      
+      - `-user <name>`: Finds files owned by a specific user.
+      - `-group <name>`: Finds files owned by a specific group.
+      - `-uid <id>`: Finds files owned by a specific User ID.
+      - `-gid <id>`: Finds files owned by a specific Group ID.
+    action: |
+      Let's find all the files in your home directory that are owned by your user.
+      
+      `find ~ -user $USER`
+      
+      Now, let's find all files in `/etc` that are owned by the `0` UID:
+      
+      `sudo find /etc -uid 0`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-perm)
+    description: |
+      The `-perm` option allows you to search for files with specific permissions.
+      You can use it with octal notation (e.g., `755`) or symbolic notation (e.g., `u=rwx,g=rx,o=rx`).
+    action: |
+      Let's find all files in your home directory that are not world-writable.
+      
+      `find ~ -not -perm /o+w`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-not)
+    description: |
+      The `-not` operator is used to negate an expression. This allows you
+      to find files that *do not* match a specific criteria.
+
+      ** It can be used multiple times.
+    action: |
+      Let's use find to list everything in your home directory except for the directories.
+      
+      `find ~ -not -type d`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-size)
+    description: |
+      The `-size` option searches for files of a particular size. You can specify
+      the size with suffixes: `c` (bytes), `k` (kilobytes), `M` (megabytes), `G` (gigabytes).
+      You can also use `+` for "larger than" or `-` for "smaller than".
+    action: |
+      Run the following command to find files in `/boot` that are larger than 10MB.
+      
+      `sudo find /boot -size +10M`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-mtime, -ctime, -atime)
+    description: |
+      You can search for files based on their timestamp.
+      
+      - `-mtime`: Modified time (when the file's content was last changed).
+      - `-ctime`: Change time (when the file's metadata was last changed).
+      - `-atime`: Access time (when the file was last read).
+    action: |
+      Let's find all files in your home directory that were modified in the last 24 hours.
+      
+      `find ~ -mtime -1`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-type)
+    description: |
+      The `-type` option searches for files of a specific type.
+      
+      - `f`: Regular file
+      - `d`: Directory
+      - `l`: Symbolic link
+      
+      You can use this to differentiate between files and folders.
+    action: |
+      Run `find` to find all directories in your home directory.
+      
+      `find ~ -type d`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-links)
+    description: |
+      The `-links` option finds files with a specified number of hard links.
+      This is useful for locating hard links that point to the same inode.
+    action: |
+      Find all files in `/etc` that have more than 2 hard links.
+      
+      `find /etc -links +2`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-delete)
+    description: |
+      The `-delete` action deletes files that match your search criteria.
+      This is an extremely powerful and potentially dangerous option.
+      It's best practice to always run the `find` command without `-delete` first to
+      confirm you are targeting the correct files.
+    action: |
+      1. Create a temporary file in your home directory:
+         `touch ~/tempfile.txt`
+      2. Verify that it exists:
+         `ls ~/tempfile.txt`
+      3. Now, use find to search for and delete it:
+         `find ~ -name "tempfile.txt" -delete`
+    verification: find ~ -name "tempfile.txt" -print -quit
+    exit_code: 1
+
+  - name: Using the find command (-exec)
+    description: |
+      The `-exec` option is one of the most powerful features of `find`. It
+      allows you to execute a command on each file that is found. The `{}`
+      is a placeholder for the filename, and a semicolon (escaped by a backslash)
+      or a plus sign `+` must be used to terminate the command.
+    action: |
+      Let's find all files in your home directory that have `.txt` and then
+      long list them.
+      
+      `find ~ -name "*.txt" -exec ls -l {} \;`
+    verification: SKIP_CHECK
+    exit_code: 0
+...

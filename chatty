@@ -1,0 +1,446 @@
+#!/usr/bin/env python3
+"""
+    Author: jmedina@collin.edu
+    Script: chatty
+    
+    Provides cookie persistence, connection-pooling, and configuration.
+
+    Basic Usage:
+    
+        chatty <module_name>
+        chatty --reload
+        chatty --list
+        
+    Note: display the help menu pressing 'h'
+"""
+
+import os
+import sys
+import subprocess
+import termios
+import tty
+from pathlib import Path
+import time
+import yaml
+
+# Color Codes
+CR = "\033[0m"          # Color reset
+CH = "\033[1;36m"       # Color Header      - Cyan bold
+CT = "\033[1;33m"       # Color Task        - Yellow bold
+CD = "\033[0;37m"       # Color Description - White
+CA = "\033[0;32m"       # Color Action      - Green
+CS = "\033[0;32m"       # Color Success     - Green
+CF = "\033[0;31m"       # Color Failure     - Red
+C_HELP = "\033[0;34m"   # Color Help        - Blue
+CP = "\033[0;35m"       # Color Prompt      - Magenta
+
+# Global State File
+state_file = Path.home() / ".chatty_state"
+
+# Module Directory
+MODULE_DIR = Path("/etc/chatty.d")
+
+# Global Variables
+current_module_path = None
+current_task_index = 0
+module_data = {}
+
+def clear_screen():
+    """Clears the terminal screen."""
+    # For Unix/Linux/macOS
+    if os.name == 'posix':
+        os.system('clear')
+    # For Windows
+    elif os.name == 'nt':
+        os.system('cls')
+    # Fallback for other systems
+    else:
+        sys.stdout.write("\033[H\033[J")
+        sys.stdout.flush()
+
+def display_welcome_screen():
+    """Displays a one-time welcome screen with an ASCII logo."""
+    clear_screen()
+
+    ascii_logo = r"""
+   _____ _        _______ _________     __
+  / ____| |      |__   __|__   __\ \   / /
+ | |    | |__   __ _| |     | |   \ \_/ / 
+ | |    | '_ \ / _` | |     | |    \   /  
+ | |____| | | | (_| | |     | |     | |   
+  \_____|_| |_|\__,_|_|     |_|     |_|
+    """
+
+    print(f"{CH}{ascii_logo}{CR}")
+    print(f"{CP}Welcome to ChaTTY - Your Interactive Linux Learning Framework!{CR}")
+    print(f"{CD}Press any key to begin...{CR}", end='', flush=True)
+    get_single_char_input()
+    clear_screen()
+
+def load_module(module_name):
+    """
+    Loads tasks from a YAML module file.
+    Expects module_name (e.g., "module1") and constructs the full path.
+    Returns True on success, False on failure.
+    """
+    global module_data
+    global current_module_path
+    global current_task_index
+
+    module_file_path = MODULE_DIR / f"{module_name}.yml"
+
+    if not module_file_path.exists():
+        # check if the user provided a full path directly for local development
+        if Path(module_name).exists() and Path(module_name).is_file() and (module_name.endswith('.yml') or module_name.endswith('.yaml')):
+            module_file_path = Path(module_name)
+        else:
+            print(f"{CF}Error: Module file '{module_file_path}' not found.{CR}")
+            print(f"{CF}Please ensure '{module_name}.yml' exists in '{MODULE_DIR}' or provide a full path.{CR}")
+            return False
+    try:
+        with open(module_file_path, 'r', encoding="utf-8") as f:
+            module_data = yaml.safe_load(f)
+
+        if not all(k in module_data for k in ['title', 'section', 'tasks']):
+            print(f"{CF}Malformed YAML. Missing title, section, or tasks.{CR}")
+            return False
+
+        if not isinstance(module_data['tasks'], list):
+            print(f"{CF}Error: 'tasks' must be a list in the YAML file.{CR}")
+            return False
+
+        current_module_path = str(module_file_path)
+        current_task_index = 0
+        print(f"{CS}Module '{module_data['title']}' loaded successfully.{CR}")
+        display_current_task()
+        return True
+
+    except yaml.YAMLError as e:
+        print(f"{CF}Error parsing YAML file '{module_file_path}': {e}{CR}")
+        return False
+    except Exception as e:
+        print(f"{CF}Unexpected error while loading the module: {e}{CR}")
+        return False
+
+def display_current_task():
+    """Displays the current task's information."""
+    clear_screen()
+
+    if not module_data or not module_data.get('tasks'):
+        print(f"{CF}No module loaded or no tasks available.{CR}")
+        return
+
+    total_tasks = len(module_data['tasks'])
+    if not 0 <= current_task_index < total_tasks:
+        print(f"{CF}Invalid task index. Please restart the module.{CR}")
+        return
+
+    task = module_data['tasks'][current_task_index]
+
+    action_value = task.get('action')
+    action_message = ""
+
+    if action_value is None or action_value.strip().upper() == "NEXT":
+        action_message = f"{CP}Action: Press 'n' to continue{CR}"
+    else:
+        action_message = f"{CA}Action: In your other terminal...\n{action_value}{CR}"
+
+    print(f"\n{CH}--- {module_data.get('title', 'Unknown Module')} ---{CR}")
+    print(f"{CH}--- Section: {module_data.get('section', 'Unknown Section')} ({current_task_index + 1}/{total_tasks}) ---{CR}")
+    print(f"\n{CT}Task: {task.get('name', 'Unnamed Task')}\n{CR}")
+    print(f"{CD}Description:\n{task.get('description', 'No description provided.')}{CR}")
+    print(action_message)
+
+    # print(f"{CA}Action: In your other terminal...\n{task.get('action', 'No action specified.')}{CR}")
+
+def move_task(direction):
+    """Moves to the next or previous task."""
+    global current_task_index
+    if not module_data or not module_data.get('tasks'):
+        print(f"{CF}No module loaded or no tasks available.{CR}")
+        return
+
+    total_tasks = len(module_data['tasks'])
+
+    if direction == 'n':
+        if current_task_index < total_tasks - 1:
+            current_task_index += 1
+            display_current_task()
+        else:
+            print(f"{CP}Last task. Press 'n' again to loop to the first task.{CR}")
+    elif direction == 'p':
+        if current_task_index > 0:
+            current_task_index -= 1
+            display_current_task()
+        else:
+            print(f"{CP}First task. Press 'p' again to loop to the last task.{CR}")
+
+def auto_advance_task():
+    """Prints a message and automatically moves to the next task after a delay."""
+    global current_task_index
+    print(f"{CP}Moving to the next task in 3 seconds...{CR}", end='', flush=True)
+    time.sleep(3)
+    if current_task_index == len(module_data['tasks']) - 1:
+        current_task_index = 0
+        display_current_task()
+    else:
+        move_task('n')
+
+def verify_task():
+    """Verifies if the current task was executed correctly."""
+    if not module_data or not module_data.get('tasks'):
+        print(f"{CF}No module loaded or no tasks available to verify.{CR}")
+        return
+
+    task = module_data['tasks'][current_task_index]
+    verification_command = task.get('verification')
+    expected_exit_code = task.get('exit_code', 0)
+
+    if not verification_command:
+        print(f"{CP}No verification command specified for this task.{CR}")
+        return
+
+    print(f"{CP}Verifying task...{CR}")
+
+    if verification_command == "SKIP_CHECK":
+        # print(f"{CS}Verification skipped as requested (SKIP_CHECK).{CR}")
+        auto_advance_task()
+        return
+
+    try:
+        # Execute the verification command in a shell
+        result = subprocess.run(
+            verification_command,
+            shell=True,
+            check=False,
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode == expected_exit_code:
+            print(f"{CS}Verification successful!{CR}")
+            # if result.stdout:
+            #     print(f"{CD}Output:\n{result.stdout.strip()}{CR}")
+            auto_advance_task()
+        else:
+            print(f"{CF}Verification failed!{CR}")
+            # print(f"{CF}Expected Exit Code: {expected_exit_code}, Actual: {result.returncode}{CR}")
+            # if result.stdout:
+            #     print(f"{CD}Stdout:\n{result.stdout.strip()}{CR}")
+            # if result.stderr:
+            #     print(f"{CD}Stderr:\n{result.stderr.strip()}{CR}")
+
+    except FileNotFoundError:
+        print(f"{CF}Error: Command '{verification_command.split()[0]}' not found.{CR}")
+    except Exception as e:
+        print(f"{CF}An error occurred during verification: {e}{CR}")
+
+def save_state():
+    """Saves the current module path and task index to a hidden file."""
+    if not current_module_path:
+        print(f"{CP}No module loaded to save state.{CR}")
+        return
+
+    state_data = {
+        'module_path' : current_module_path,
+        'task_index': current_task_index
+    }
+    try:
+        with open(state_file, 'w', encoding="utf-8") as f:
+            yaml.dump(state_data, f)
+        print(f"{CS}Current state saved to {state_file}{CR}")
+    except Exception as e:
+        print(f"{CF}Error saving state: {e}{CR}")
+
+def reload_state():
+    """Reloads the state from the hidden file. Returns True on success, False on failure."""
+    global current_module_path
+    global current_task_index
+    global module_data
+
+    if not state_file.exists():
+        print(f"{CP}No saved state found at {state_file}.{CR}")
+        return False
+
+    try:
+        with open(state_file, 'r', encoding="utf-8") as f:
+            state_data = yaml.safe_load(f)
+
+        saved_module_path = state_data.get('module_path')
+        saved_task_index = state_data.get('task_index')
+
+        if not saved_module_path or saved_task_index is None:
+            print(f"{CF}Malformed state file. Cannot reload.{CR}")
+            return False
+
+        module_file_path = Path(saved_module_path)
+
+        print(f"{CP}Reloading state from '{module_file_path}'...{CR}")
+
+        if not module_file_path.exists():
+            print(f"{CF}Error: Saved module file '{module_file_path}' not found.{CR}")
+            return False
+
+        with open(module_file_path, 'r', encoding="utf-8") as f:
+            module_data = yaml.safe_load(f)
+
+        if not all(k in module_data for k in ['title', 'section', 'tasks']):
+            print(f"{CF}Malformed YAML in saved module. Cannot reload.{CR}")
+            module_data = {}
+            return False
+
+        current_module_path = str(module_file_path)
+        current_task_index = saved_task_index
+
+        if not 0 <= current_task_index < len(module_data['tasks']):
+            print(f"{CF}Task index ({current_task_index}) out of bounds. Resetting to task 0.{CR}")
+            current_task_index = 0
+
+        print(f"{CS}State reloaded successfully.{CR}")
+        display_current_task()
+        return True
+
+    except yaml.YAMLError as e:
+        print(f"{CF}Error parsing state file: {e}{CR}")
+        return False
+    except Exception as e:
+        print(f"{CF}Unexpected error occurred while reloading state: {e}{CR}")
+        return False
+
+def display_help():
+    """Displays the help menu and waits for user to exit."""
+    clear_screen()
+
+    print(f"\n{CH}--- ChaTTY Help ---\n{CR}")
+    print(f"{CT} 'h' {C_HELP}- Show this help menu{CR}")
+    print(f"{CT} 'n' {C_HELP}- Move to the next task{CR}")
+    print(f"{CT} 'p' {C_HELP}- Return to the previous task{CR}")
+    print(f"{CT} 'v' {C_HELP}- Verify the current task{CR}")
+    print(f"{CT} 's' {C_HELP}- Save the current state{CR}")
+    print(f"{CT} 'r' {C_HELP}- Reload the last saved state{CR}")
+    print(f"{CT} 'q' {C_HELP}- Quit ChaTTY{CR}")
+    print(f"\n{CS}NOTE: {CT}Run exercises in a separate terminal.{CR}")
+    print(f"{C_HELP}--------------------{CR}")
+    print(f"\n{CP}Press 'h' or 'Escape' to return to your task...{CR}", end='', flush=True)
+
+    while True:
+        key = get_single_char_input().lower()
+        if key == 'h' or key == '\x1b':
+            break
+
+def get_single_char_input():
+    """Reads a single character input without waiting for Enter."""
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        ch = sys.stdin.read(1)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return ch
+
+def list_modules():
+    """Scans the module directory and lists all available modules in YAML format."""
+    module_files = sorted(list(MODULE_DIR.glob("*.yml")) + list(MODULE_DIR.glob("*.yaml")))
+    
+    if not module_files:
+        print(f"{CF}No modules found in {MODULE_DIR}.{CR}")
+        return
+        
+    modules_list = []
+    
+    for file_path in module_files:
+        try:
+            with open(file_path, 'r', encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+                if data and all(k in data for k in ['title', 'section', 'tasks']):
+                    tasks_list = [task.get('name', 'Unnamed Task') for task in data['tasks']]
+                    module_info = {
+                        "filename": file_path.stem, # Get the filename without extension
+                        "title": data['title'],
+                        "section": data['section'],
+                        "tasks": tasks_list
+                    }
+                    modules_list.append(module_info)
+        except Exception as e:
+            print(f"{CF}Warning: Could not parse module '{file_path}': {e}{CR}", file=sys.stderr)
+            
+    print(f"{CH}Available ChaTTY Modules:{CR}\n")
+    print(yaml.dump(modules_list, sort_keys=False), end='')
+
+def main():
+    """Main entry point."""
+    global current_task_index
+
+    if len(sys.argv) < 2:
+        print(f"{CP}Usage: ./chatty <module_name>{CR}")
+        print(f"{CP}Or: ./chatty --reload (to load last saved state){CR}")
+        print(f"{CP}Or: ./chatty --list (to list available modules){CR}")
+        sys.exit(1)
+
+    display_welcome_screen()
+    
+    if sys.argv[1] == "--list":
+        list_modules()
+        sys.exit(0)
+
+    module_loaded_successfully = False
+    if sys.argv[1] == "--reload":
+        module_loaded_successfully = reload_state()
+    else:
+        module_loaded_successfully = load_module(sys.argv[1])
+
+    if not module_loaded_successfully:
+        sys.exit(1)
+
+    while True:
+        print(f"\n{CP}Press a key (h for help): {CR}", end='', flush=True)
+        key = get_single_char_input().lower()
+
+        if key == 'q':
+            print(f"{CP}\nExiting ChaTTY. Goodbye!{CR}")
+            break
+        elif key == 'h':
+            display_help()
+            display_current_task()
+        elif key == 'n':
+            if not module_data or not module_data.get('tasks'):
+                print(f"{CF}\nNo module loaded or no tasks available.{CR}")
+                continue
+
+            if current_task_index == len(module_data['tasks']) - 1:
+                print(f"{CP}\nAt last task. Press 'n' again to loop to the first task.{CR}")
+                key_confirm = get_single_char_input().lower()
+                if key_confirm == 'n':
+                    current_task_index = 0
+                    display_current_task()
+                else:
+                    display_current_task()
+            else:
+                move_task('n')
+        elif key == 'p':
+            if not module_data or not module_data.get('tasks'):
+                print(f"{CF}\nNo module loaded or no tasks available.{CR}")
+                continue
+
+            if current_task_index == 0:
+                print(f"{CP}\nAt first task. Press 'p' again to loop to the last task.{CR}")
+                key_confirm = get_single_char_input().lower()
+                if key_confirm == 'p':
+                    current_task_index = len(module_data['tasks']) - 1
+                    display_current_task()
+                else:
+                    display_current_task()
+            else:
+                move_task('p')
+        elif key == 'v':
+            verify_task()
+        elif key == 's':
+            save_state()
+        elif key == 'r':
+            reload_state()
+        else:
+            print(f"{CF}\nInvalid input. Press 'h' for help.{CR}")
+
+if __name__ == "__main__":
+    main()

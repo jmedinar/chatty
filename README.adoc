@@ -1,0 +1,217 @@
+= ChaTTY: Interactive Linux Learning Framework
+:author: Juan Medina jmedina@collin.edu
+:revnumber: 1.0.0
+:revdate: 2025-07-29
+:toc: left
+:toclevels: 2
+:sectnums:
+:source-highlighter: highlight.js
+
+// Introduction
+ChaTTY is an interactive learning framework designed to guide users through Linux terminal exercises. It leverages YAML files to define structured tasks, providing clear descriptions, suggested actions, and robust verification mechanisms. With its user-friendly interface, colored output, and simple key-based navigation, ChaTTY offers an engaging way to learn and practice Linux commands directly in your terminal.
+
+== Features
+
+* **Interactive Navigation:** Easily move between tasks using single key presses (`n` for next, `p` for previous).
+* **Clear Task Presentation:** Each task displays its name, a detailed description, and the action to perform.
+* **Automated Verification:** Verify task completion with a single key press (`v`), checking command exit codes or specific output.
+* **"SKIP_CHECK" Verification:** Allows for tasks that require observation or manual checks, automatically marking them as successful.
+* **Persistent State:** Save and reload your progress to continue learning exactly where you left off.
+* **Dynamic Module Loading:** Easily add new learning modules by simply dropping YAML files into the `/etc/chatty.d/` directory.
+* **Clean Interface:** Automatic screen clearing ensures a clutter-free learning environment for each new task.
+* **Terminal-Friendly:** Designed specifically for use within a terminal, with colored output for enhanced readability.
+
+== Prerequisites
+
+Before you begin, ensure you have the following installed on your Red Hat-based Linux system:
+
+* **`Python 3`:** ChaTTY is written in Python 3.
+* **`pip`:** Python's package installer.
+* **`pyyaml`:** The Python library for YAML parsing.
+* **`rpm-build`:** Tools for building RPM packages (if you plan to install via RPM).
+
+== Installation
+
+You have two primary options for installing ChaTTY:
+
+=== Option 1: Local Installation (from source)
+
+This method is ideal if you want to run ChaTTY directly from its source directory.
+
+. Clone the repository:
++
+[source,shell]
+----
+git clone https://github.com/jmedinar/chatty.git
+cd chatty
+----
+
+. Install Python dependencies:
++
+[source,shell]
+----
+pip install -r requirements.txt
+----
+
+. Make the `chatty` script executable:
++
+[source,shell]
+----
+chmod +x chatty
+----
+
+=== Option 2: RPM Package Installation
+
+This method installs ChaTTY system-wide, making it available as a standard command.
+
+. Clone the repository:
++
+[source,shell]
+----
+git clone https://github.com/jmedinar/chatty.git
+cd chatty
+----
+
+. Install RPM build tools and Python dependencies:
++
+[source,shell]
+----
+sudo dnf install -y rpm-build python3-pyyaml
+----
+
+. Build the RPM package (optional):
++
+[source,shell]
+----
+./build_rpm.sh
+----
++
+This script will create the necessary source tarball and build the `.rpm` file in `~/rpmbuild/RPMS/noarch/`.
+
+. Install the generated RPM (the latest version is already included in the repository):
++
+[source,shell]
+----
+sudo dnf install ~/rpmbuild/RPMS/noarch/chatty-*.noarch.rpm
+----
+
+== Usage
+
+ChaTTY operates in an interactive loop. You'll typically run it in one terminal window and perform the exercises in a separate, split terminal.
+
+=== Start a New Learning Session
+
+To start a new session with a specific module, simply provide its name (without the `.yml` extension). ChaTTY will automatically look for it in `/etc/chatty.d/`:
+
+[source,shell]
+----
+chatty module1
+----
+
+If you are developing new modules and they are in a different location you can also execute chatty providing the full path to the module
+
+[source,shell]
+----
+chatty /home/username/chatty/tasks/module1.yml
+----
+
+=== Reload a Saved Session
+
+To continue from your last saved point:
+
+[source,shell]
+----
+chatty --reload
+----
+
+=== Terminal Setup for Exercises
+
+While `ChaTTY` runs in one terminal, open another terminal window or use your terminal emulator's split-pane feature to perform the `Action` commands displayed by ChaTTY.
+
+== Key Bindings
+
+ChaTTY uses simple single-key commands for navigation and interaction:
+
+* `h`: Display the help menu. Press `h` or `Escape` again to return to the current task.
+* `n`: Move to the next task. If at the last task, pressing `n` again will loop to the first task.
+* `p`: Return to the previous task. If at the first task, pressing `p` again will loop to the last task.
+* `v`: Verify the current task's completion. (Not all the tasks have verification)
+* `s`: Save the current state so you can continue later.
+* `r`: Reload the last saved state.
+* `q`: Quit ChaTTY.
+
+== How it Works (Detailed)
+
+ChaTTY is built around a simple yet effective loop:
+
+=== YAML Loading
+
+The script uses the `pyyaml` library to parse your `.yml` module files. It expects a specific structure with `title`, `section`, and a `tasks` list. Each task within the list requires `name`, `description`, `action`, `verification`, and `exit_code` fields. When you provide a module name (e.g., `module1`), ChaTTY constructs the full path by looking in the `/etc/chatty.d/` directory.
+
+=== Task Presentation
+
+Upon loading a module or navigating to a new task, ChaTTY clears the terminal screen and presents the current task's details, including its name, a detailed description (supporting multi-line text for readability), and the action command for the user to execute.
+
+=== Verification (`v`)
+
+When you press `v`, ChaTTY performs one of two actions:
+
+* **Command Execution:** If the `verification` field contains a command, ChaTTY executes it in a subshell. It then compares the command's actual exit code with the `exit_code` specified in your YAML. A success or failure message is displayed, along with any output from the verification command.
+* **"SKIP_CHECK":** If the `verification` field is set to the literal string `SKIP_CHECK`, ChaTTY immediately marks the task as successful. This is useful for tasks that are observational or require manual checks outside of automated command-line verification.
+
+For any successful verification (either by command exit code or `SKIP_CHECK`), ChaTTY will print a "Moving to the next task..." message and automatically advance to the next task after a 3-second delay, ensuring a smooth learning flow.
+
+=== State Management (`s` and `r`)
+
+ChaTTY maintains your progress by saving the current module's and the indx of the current task to a hidden YAML file (`~/.chatty_state`) in your home directory. This file is automatically overwritten with each new save. When reloading, ChaTTY uses the saved filename to locate the module in `/etc/chatty.d/` and restores your position.
+
+== Creating Your Own Learning Modules
+
+ChaTTY's strength lies in its extensible YAML-based task definitions. You can create your own `.yml` files to design custom learning paths.
+
+=== YAML File Structure
+
+Each module file should follow this structure:
+
+[source,yaml]
+----
+title: Your Module Title
+section: A Specific Learning Section
+tasks:
+
+  - name: Name of Task 1
+    description: |
+      Detailed description of what the student needs to learn or understand.
+      This can span multiple lines for readability.
+    action: The command or action the student should perform in their terminal.
+    verification: The command to run to verify the action (e.g., `ls -l /path/to/file`).
+    exit_code: 0 # The expected exit code of the verification command (0 for success, non-zero for failure).
+
+  - name: Name of Task 2 (e.g., an observational task)
+    description: |
+      Observe the output of the previous command.
+      Understand the concept of X.
+    action: have the student do something to observe.
+    verification: SKIP_CHECK
+    exit_code: 0 # This value is ignored when SKIP_CHECK is used, but good to keep for consistency.
+----
+
+=== Module Storage Locations
+
+ChaTTY is designed to find your learning modules in specific locations, depending on how you're using the framework. While you can technically place modules anywhere and provide a full path, these are the recommended and most convenient options:
+
+. For Development and RPM Packaging:
++
+Place your YAML module files in the `tasks/` subdirectory within your project's repository. This location is ideal when you're actively developing new modules, and preparing them to be included in an RPM package. The build_rpm.sh script is configured to pick up modules from here.
+
+. For System-Wide Use (After RPM Installation):
++
+Once ChaTTY is installed via the RPM package, its built-in modules (and any custom ones you want to add for system-wide access) should reside in the `/etc/chatty.d/` directory. This is the standard location where ChaTTY will automatically look for modules when you call them by name. This makes them easily accessible to all users on the system.
+
+== Contributing
+
+Feel free to contribute new learning modules or improve existing features. Fork the repository, make your changes, and submit a pull request!
+
+== License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

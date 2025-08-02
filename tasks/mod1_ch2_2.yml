@@ -1,0 +1,258 @@
+# yaml-language-server: $schema=https://schemastore.org/yamllint.json
+# Example format and required fields
+  # - name: 
+  #   description: 
+  #   action: 
+  #   verification: 
+  #   exit_code: 
+---
+title: Linux Fundamentals
+section: Asking for help and navigating the file system
+tasks:
+
+  - name: Asking for help! (The type command)
+    description: |
+      The `type` command prints the actual command that will be executed when called.
+      This is useful because some commands are aliased or masked, which means
+      they have been modified to execute differently than their original version.
+    action: |
+      Let's use `type` to inspect some common commands.
+      
+      In your terminal, run each of the following:
+
+      `type ls`
+      `type date`
+      `type passwd`
+      `type pwd`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (The which command)
+    description: |
+      The `which` command is a useful companion to `type`. It prints the full
+      path of the executable file that would be run when a command is called.
+      This is how you can find the exact location of a program on your system.
+    action: |
+      Use `which` to find the location of a command. For example, run:
+      
+      `which ls`
+      `which date`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (The whatis command)
+    description: |
+      The `whatis` command displays a one-line description from a command's
+      manual page. This gives you a quick summary of a command's purpose
+      without having to open the full `man` page.
+    action: |
+      Use `whatis` to get a quick description of a command. For example, run:
+      
+      `whatis ls`
+      `whatis which`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (The apropos command)
+    description: |
+      The `apropos` command performs a keyword search on the short descriptions
+      of all manual pages. It's useful when you know a command's purpose but
+      can't remember its name.
+    action: |
+      Run the `apropos` command to find commands related to a keyword.
+      For example, to find commands that manage files, run:
+      
+      `apropos file`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (The --help option and help command)
+    description: |
+      Most commands support a `--help` option, which prints a summary of
+      the command's usage and available options. It's often the fastest
+      way to get a reminder of a command's syntax.
+
+      For shell built-ins like `cd` or `history`, the `help` command is
+      used instead of `--help`.
+    action: |
+      Run the following examples to see the different help outputs:
+
+      `ls --help`
+
+      `help cd`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (The man pages)
+    description: |
+      The `man` (manual) command is the primary source of in-depth
+      documentation for a command. It displays a command's full
+      manual page, which includes its syntax, a detailed description,
+      options, and examples.
+    action: |
+      Run the `man` command with `free` as an argument to view its full manual page.
+      
+      `man free`
+
+      When you are done reading, press `q` to return to your terminal.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (Navigating the man pages)
+    description: |
+      The `man` pages are viewed with a pager program, typically `less`,
+      which allows you to move through the content one screen at a time.
+      Here are the most common navigation shortcuts:
+      
+      - `Page Down`: Scroll down one full page.
+      - `Page Up`: Scroll up one full page.
+      - `/`: Search forward for a specific string.
+      - `n`: Jump to the next search result.
+      - `q`: Quit the manual page viewer.
+    action: |
+      Run `man find` and practice using the navigation commands listed above.
+      
+      `man find`
+
+      When you are done, press `q` to return to your terminal.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (man -k, and man pages sections)
+    description: |
+      The `man` command can do more than just display a manual page.
+      The `-k` option performs a keyword search of all man page descriptions,
+      which is useful for finding commands when you only know their function.
+
+      Also, some commands appear in multiple sections of the manual (e.g., a command
+      and a file format). You can specify a section number to view a specific page,
+      such as `man 5 passwd` for the file format versus `man 1 passwd` for the command.
+    action: |
+      Run the following commands to see these features in action:
+      
+      `man -k passwd`
+      `man 1 passwd`
+      `man 5 passwd`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Creating your first command (alias)
+    description: |
+      An `alias` is a shortcut for a longer command or a series of commands.
+      Creating an alias allows you to execute a complex command with a simple,
+      easy-to-remember name.
+      
+      For example, `alias ll='ls -l'` creates a new command `ll` that runs the
+      long-listing format of the `ls` command.
+    action: |
+      Let's create a temporary alias in our current shell session 
+      that will count the txt files in our current location
+      
+      Run:
+
+      `alias txtcount='ls -l *.txt | wc -l'`
+
+      Now, run `txtcount` to see your new command in action.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Creating your first command (making aliases permanent)
+    description: |
+      The alias you just created is only temporary and will 
+      be lost when the terminal session ends.
+
+      To make an alias permanent, you must add it to your shell's 
+      startup file, which is usually `~/.bashrc`.
+    action: |
+      Firstly, open a new terminal and try to run the `txtcount` command. (It will fail)
+      Close the terminal.
+
+      Next, let's make the `txtcount` alias permanent.
+
+      1. Open your `~/.bashrc` file in a text editor:
+      2. Add the alias to the end of the file:
+         `alias txtcount='ls -l *.txt | wc -l'`
+      3. Save and close the file.
+      4. Open a new terminal and try to run the `txtcount` command. (It will succeed)
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Viewing file structures with tree
+    description: |
+      The `tree` command is a powerful tool for viewing a directory's contents
+      in a tree-like, visual format. This is much more intuitive than a simple
+      list when you're trying to understand a project's structure.
+    action: |
+      Let's install the `tree` package and then use it to visualize a directory.
+
+      1. Install the `tree` package:
+         `sudo dnf install -y tree`
+
+      2. Now, run `tree` on your home directory to see your files:
+         `tree -L 1 ~`
+
+         Notice: we limited the output to just 1 level of depth (-L 1) 
+                 for simplification
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Changing to a different directory (cd command)
+    description: |
+      The `cd` (change directory) command is one of the most fundamental
+      commands in Linux. It is used to move from your current directory
+      to another directory on the filesystem.
+    action: |
+      Let's practice navigating between a few directories.
+
+      1. Change to the `/etc` directory:
+         `cd /etc`
+      2. Change to the `/home` directory:
+         `cd /home`
+      3. Change to the `/var/log` directory:
+         `cd /var/log`
+      4. Now go up one directory level:
+         `cd ..`
+      5. Now jump back and fort between the current and the last visited directory
+         `cd -`
+         (Do it multiple times!)
+      6. Finally, return to your home directory:
+         `cd`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Absolute vs Relative paths (cd command)
+    description: |
+      When navigating the filesystem, you can use two types of paths:
+      
+      - An **absolute path** starts from the root directory (`/`).
+        It provides the full, unambiguous location of a file or directory.
+      - A **relative path** starts from your current working directory.
+        It's shorter and more convenient when you're already close to your destination.
+    action: |
+      Let's practice using both path types.
+      
+      1. Ensure you are in your home directory:
+        `cd`
+      2. Run these commands and observe the results:
+        - Use an **absolute path** to view the contents of the `Downloads` directory:
+            `ls -l /home/<your_user>/Downloads`
+        - Use a **relative path** to do the same (assuming you are in your home directory):
+            `ls -l Downloads`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the type command
+    description: |
+      The `type` command is a helpful tool for understanding how a command
+      will be interpreted by the shell. It tells you whether a command is
+      a built-in shell command, a file on your system's PATH, or an alias.
+    action: |
+      Let's use `type` to inspect some common commands. Run the following:
+
+      `type ls`
+      `type cd`
+      `type python`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+...

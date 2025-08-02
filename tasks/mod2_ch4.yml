@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://schemastore.org/yamllint.json
+# Example format and required fields
+  # - name: 
+  #   description: 
+  #   action: 
+  #   verification: 
+  #   exit_code: 
+---
+title: Command Line Text Processing and I/O Redirections
+section: The grep command
+tasks:
+
+  # - name: Creating your first file
+  #   description: Creating a file is simple using the touch command.
+  #   action: "run the command `touch my_first_file.txt`"
+  #   verification: ls -l ~/my_first_file.txt
+  #   exit_code: 0
+
+  # - name: Removing your first file
+  #   description: Use the `rm` command to remove files.
+  #   action: "run the command `rm my_first_file.txt`"
+  #   verification: ls -l ~/my_first_file.txt
+  #   exit_code: 1
+...
