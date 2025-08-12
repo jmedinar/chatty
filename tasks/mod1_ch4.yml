@@ -10,15 +10,558 @@ title: Command Line Text Processing and I/O Redirections
 section: The grep command
 tasks:
 
-  # - name: Creating your first file
-  #   description: Creating a file is simple using the touch command.
-  #   action: "run the command `touch my_first_file.txt`"
-  #   verification: ls -l ~/my_first_file.txt
-  #   exit_code: 0
+  - name: Linux file types
+    description: |
 
-  # - name: Removing your first file
-  #   description: Use the `rm` command to remove files.
-  #   action: "run the command `rm my_first_file.txt`"
-  #   verification: ls -l ~/my_first_file.txt
-  #   exit_code: 1
+      - Regular file Regular files are those without any imposed structure.
+      d Directory file contains named references to other files.
+      l Symbolic Link is a pointer to another file by name.
+      c Character device files let programs communicate with the system’s hardware.
+      s Local Domain Sockets allow processes to communicate locally and over the network.
+      p Named Pipes allow communication between two processes running on the same
+      b Block Device allow communication with storage hardware.
+
+    action: |
+      The first character of an `ls -l` command's output indicates the file type:
+      Let's examine some different file types on your system.
+
+      View the contents of the `/dev/` directory and use `grep` to look for specific types:
+
+        Look for regular files:
+        `ls -l /dev/ | grep ^-`
+
+        Look for directories:
+        `ls -l /dev/ | grep ^d`
+        
+        Look for symbolic links:
+        `ls -l /dev/ | grep ^l`
+        
+        Look for character device files:
+        `ls -l /dev/ | grep ^c`
+        
+        Look for local domain sockets:
+        `ls -l /dev/ | grep ^s`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Displaying file statistics and metadata (stat)
+    description: |
+      The `stat` command displays detailed metadata about a file or directory.
+      While `ls -l` shows basic information like permissions and size, `stat`
+      provides more in-depth data, including:
+
+      - Inode number
+      - Creation, Access, and Modification timestamps
+      - Block size and number of blocks
+    action: |
+      Use the `stat` command to view the metadata for your shell's configuration file.
+
+      `stat ~/.bashrc`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding file ownership and permissions (ls -l)
+    description: |
+      The `ls -l` command provides a detailed list of file information,
+      including a file's permissions, ownership, and group. This is crucial
+      for understanding who can read, write, or execute a file.
+
+      The output looks like this:
+      -rwx------. 1 root root 1234 May 12 10:00 filename.txt
+      
+      Here's what each part means:
+      - The first field (`-rwx------`) is the file's permissions.
+      - The third field (`root`) is the user who owns the file.
+      - The fourth field (`root`) is the group that owns the file.
+    action: |
+      Let's use `ls -l` to check the ownership and permissions of a file.
+
+      `ls -l /etc/passwd`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Changing file ownership
+    description: |
+      The `chown` (change owner) command is used to change the user and/or
+      group ownership of a file or directory. This requires `sudo` or
+      root permissions.
+
+      The format is `chown <user>:<group> <file>`.
+    action: |
+      Let's create a file and then change its ownership.
+
+      1. Create a file in your home directory:
+         `touch ~/my_test_file.txt`
+
+      2. Use `ls -l` to confirm the file ownership:
+         `ls -l ~/my_test_file.txt`
+      
+      3. Change its ownership to the `root` user and `root` group:
+         `sudo chown root:root ~/my_test_file.txt`
+      
+      4. Use `ls -l` to confirm the ownership has changed.
+         `ls -l ~/my_test_file.txt`
+    verification: ls -l ~/my_test_file.txt | grep -q "root root"
+    exit_code: 0
+
+  - name: Changing file permissions using symbolic notation
+    description: |
+      The `chmod` command (change mode) is used to modify a file's permissions.
+      Symbolic notation uses a combination of letters to specify who gets
+      what permission.
+
+      - **Who:** `u` (user), `g` (group), `o` (other), `a` (all)
+      - **Operator:** `+` (add), `-` (remove), `=` (set)
+      - **Permissions:** `r` (read), `w` (write), `x` (execute)
+    action: |
+      Let's change the permissions of a file.
+
+      1. Create a new file:
+         `touch ~/permissions_test.txt`
+      2. Remove all permissions from the file:
+         `chmod a-rwx ~/permissions_test.txt`
+      3. Add read and write permissions back for the user:
+         `chmod u+rw ~/permissions_test.txt`
+    verification: stat -c %a ~/permissions_test.txt | grep -q 600
+    exit_code: 0
+
+  - name: Changing file permissions using octal notation
+    description: |
+      Octal notation is another way to set file permissions with `chmod`.
+      It uses three numbers, each representing a permission set for the
+      user, group, and others. Each number is a sum of the following values:
+
+      `4`: read (r)      `2`: write (w)      `1`: execute (x)
+
+      For example, `755` means 
+        `rwx` for the user (`4+2+1`)
+        `rx` for the group (`4+1`)
+        `rx` for others (`4+1`)
+    action: |
+      Let's set a file to `rwxr-xr--` permissions using octal notation.
+
+      1. Create a new file:
+         `touch ~/octal_test.txt`
+      2. Set the permissions to `754`:
+         `chmod 754 ~/octal_test.txt`
+      3. Use `ls -l` to confirm the permissions have changed.
+         `ls -l ~/octal_test.txt`
+    verification: stat -c %a ~/octal_test.txt | grep -q 754
+    exit_code: 0
+
+  - name: Understanding special mode (setuid)
+    description: |
+      The `setuid` (Set User ID) special permission bit is used on executable
+      files. When set, it allows a user to run the file with the permissions
+      of the file's owner, typically `root`. The `setuid` bit is represented
+      by an `s` in the owner's execute permission field (e.g., `-rwsr-xr-x`).
+
+      For security reasons `setuid` is not allowed on shell scripts and its
+      only honored in binary files.
+    action: |
+      1. Create the file `~/hello.cpp` in your text editor with the following content:
+          #include <iostream>
+          #include <unistd.h>
+          #include <pwd.h>
+          int main() {
+            uid_t euid = geteuid();
+            passwd *p = getpwuid(euid);
+            std::cout << "Running as UID: " << euid << " (" << p->pw_name << ")" << std::endl;
+            return 0;
+          }
+
+      2. Save the file and compile it with the command: `g++ ~/hello.cpp -o ~/hello`
+        In case of error run: (sudo dnf install -y gcc-c++)
+
+      3. Run the binary program: `~/hello`
+
+      4. Change the ownership to root and run it again:
+         `sudo chown root:root ~/hello`
+         `~/hello`
+
+      5. Set the `setuid` and execute one more time:
+         `sudo chmod u+s ~/hello`
+         `~/hello`
+    verification: stat -c %a ~/hello | grep -q 4755
+    exit_code: 0
+
+  - name: Understanding special mode (setgid)
+    description: |
+      The `setgid` (Set Group ID) special permission bit is similar to `setuid`,
+      but it applies to directories. When a file is created in a directory
+      with the `setgid` bit set, it inherits the group ownership of that
+      directory instead of the user's primary group.
+      
+      This is useful for shared directories where all files should belong to
+      a single group. The `setgid` bit is represented by an `s` in the group's
+      execute permission field (e.g., `-rwxrw-sr--`).
+    action: |
+      1. Create a directory and a new group for testing:
+         `sudo groupadd sharedgroup`
+         `mkdir ~/test-setgid`
+         `ls -ld ~/test-setgid`
+
+      2. Try creating a file in the new directory
+         `touch ~/test-setgid/my-file.txt`
+
+      3. Change the group that owns the directory to the new group created
+         `sudo chown :sharedgroup ~/test-setgid`
+         `ls -ld ~/test-setgid`
+
+      4. Set the `setgid` bit on the directory:
+         `sudo chmod g+s ~/test-setgid`
+         `ls -ld ~/test-setgid`
+
+      5. Create a new file in the directory:
+         `touch ~/test-setgid/shared-file.txt`
+         `ls -l ~/test-setgid/`
+    verification: stat -c %G ~/test-setgid/shared-file.txt | grep -q sharedgroup
+    exit_code: 0
+
+  - name: Understanding special mode (sticky-bit)
+    description: |
+      The `sticky-bit` is a special permission bit typically used on
+      directories with public write permissions. When set, it prevents
+      users from deleting or renaming files in that directory unless
+      they own the file, are the owner of the directory, or are `root`.
+      
+      This is how `sticky-bit` prevents a user from deleting another
+      user's files in shared directories like `/tmp`. The bit is
+      represented by a `t` at the end of the permissions string
+      (e.g., `drwxrwxrwt`).
+    action: |
+      Let's create a temporary shared directory to demonstrate the sticky-bit.
+
+      1. As root (sudo) create a new directory and give it global write permissions:
+         `sudo mkdir /test-sticky`
+         `sudo chmod 1777 /test-sticky`
+         `ls -ld /test-sticky`
+
+      2. As your regular user create a file in that directory. It will work.
+         `touch /test-sticky/user1.txt`
+
+      3. Create a new user "test-user" and switch to it:
+         `sudo useradd test-user`
+         `sudo su - test-user`
+
+      4. Now, as the new user see if you can create a new file
+         `touch /test-sticky/user2.txt``
+      
+      5. Also as the new user try to delete the first created file, it would fail.
+         `rm /test-sticky/user1.txt`
+
+      6. Done! type `exit` to return to your regular user
+    verification: stat -c %a /test-sticky | grep -q 1777
+    exit_code: 0
+
+  - name: Understanding default permissions (umask)
+    description: |
+      The `umask` (user mask) command determines the default file
+      permissions for new files and directories created by a user.
+      It's a security measure that masks out certain permissions.
+      
+      The `umask` value is a three-digit octal number. The default is typically `0022`.
+      To calculate the final permissions, you subtract the `umask` from the
+      maximum allowed permissions:
+      
+      - **Files:** `666` (no execute) - `022` = `644` (`rw-r--r--`)
+      - **Directories:** `777` (full access) - `022` = `755` (`rwxr-xr-x`)
+    action: |
+      Let's observe your current `umask` and see how it affects a new file.
+
+      1. View your current `umask`:
+         `umask`
+      
+      2. Create a file and a directory:
+         `touch ~/umask-test-file.txt`
+         `mkdir ~/umask-test-dir`
+
+      3. Use `stat` to compare permissions to current your `umask` value.
+         `stat -c "%a %n` ~/umask*
+
+      4. Now let's change the umask and create a new set of files
+        `umask 0000`
+        `touch ~/umask-test-file2.txt`
+        `mkdir ~/umask-test-dir2`
+
+      5. Use `stat` again to compare
+         `stat -c "%a %n` ~/umask*
+
+      6. IMPORTANT: Rollback the change made to the umask
+        `umask 0022`
+    verification: SKIP_CHECK
+    exit_code: 0
+  
+  - name: Making directories
+    description: |
+      The `mkdir` command is used to create new directories. It is a
+      fundamental command for organizing your filesystem.
+    action: |
+      Let's create a new directory in your home folder.
+
+      `mkdir ~/new_directory`
+      `ls -l ~`
+    verification: ls -ld ~/new_directory
+    exit_code: 0
+
+  - name: Making files
+    description: |
+      The `touch` command is used to create a new, empty file or update
+      the timestamp of an existing file.
+    action: |
+      Let's create a new file in the directory you just made.
+
+      `touch ~/new_directory/my_file.txt`
+      `ls -l ~/new_directory`
+    verification: ls ~/new_directory/my_file.txt
+    exit_code: 0
+
+  - name: Copying files and directories
+    description: |
+      The `cp` command is used to copy files and directories. The format is
+      `cp [source] [destination]`. When copying directories, you must use
+      the `-r` (recursive) option.
+    action: |
+      Let's copy the file you just created.
+
+      1. Copy `my_file.txt` to a new file named `my_file_copy.txt`:
+         `cp ~/new_directory/my_file.txt ~/new_directory/my_file_copy.txt`
+      2. Verify both files exist:
+         `ls -l ~/new_directory`
+      3. Copy the directory
+         `cp -r ~/new_directory ~/new_directory_copy`
+      4. Verify both directories exist:
+         `ls -dl ~/new_directory*`
+    verification: ls -l ~/new_directory/my_file_copy.txt
+    exit_code: 0
+
+  - name: Moving and renaming files and directories
+    description: |
+      The `mv` command is used to move files and directories. When the destination
+      is a new name in the same directory, it effectively renames the file.
+      The format is `mv [source] [destination]`.
+    action: |
+      Let's rename the file you just copied.
+
+      1. Rename `my_file_copy.txt` to `my_file_renamed.txt`:
+         `mv ~/new_directory/my_file_copy.txt ~/new_directory/my_file_renamed.txt`
+      2. Verify the new name:
+         `ls -l ~/new_directory`
+    verification: ls -l ~/new_directory/my_file_renamed.txt
+    exit_code: 0
+
+  - name: Deleting files
+    description: |
+      The `rm` command (remove) is used to delete files. By default, it
+      does not prompt for confirmation. Use with caution!
+    action: |
+      Let's delete the `my_file_renamed.txt` file you created.
+
+      1. Delete the file:
+         `rm ~/new_directory/my_file_renamed.txt`
+      2. Verify the file is gone:
+         `ls -l ~/new_directory`
+    verification: ls -l ~/new_directory/my_file_renamed.txt
+    exit_code: 1
+
+  - name: Deleting directories
+    description: |
+      To delete a directory, you must use `rm` with the `-r` (recursive) option.
+      This deletes the directory and all of its contents.
+    action: |
+      Let's delete the `new_directory` you created.
+
+      1. Delete the directory:
+         `rm -r ~/new_directory`
+      2. Verify the directory is gone:
+         `ls -l ~`
+    verification: ls -ld ~/new_directory
+    exit_code: 1
+
+  - name: Making symbolic links
+    description: |
+      The `ln` command (link) creates a link to a file. A symbolic link (or soft link)
+      is a file that points to another file or directory by its name. The
+      format is `ln -s [target] [link_name]`.
+    action: |
+      Let's create a symbolic link to the `/etc/passwd` file in your home directory.
+
+      1. Create the link:
+         `ln -s /etc/passwd ~/passwd_link`
+      2. Use `ls -l` to see the link:
+         `ls -l ~/passwd_link`
+    verification: ls -l ~/passwd_link | grep -q "/etc/passwd"
+    exit_code: 0
+
+  - name: Making hard links
+    description: |
+      A **hard link** is a direct pointer to a file's data on the disk.
+      Multiple hard links to the same file share the exact same content
+      and inode number. Deleting a hard link does not delete the file
+      until the last link is removed.
+
+      The `ln` command is used to create hard links.
+    action: |
+      Let's create a file and then make a hard link to it.
+
+      1. Create a file and check its inode number (`-i`):
+         `touch ~/my_original_file.txt`
+         `ls -li ~/my_original_file.txt`
+
+      2. Create a hard link to the file:
+         `ln ~/my_original_file.txt ~/my_hard_link.txt`
+
+      3. Now, check both files. They should have the same inode number.
+         `ls -li ~/my_original_file.txt ~/my_hard_link.txt`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Archiving (tar)
+    description: |
+      The `tar` command is used to create and extract archive files. It's often
+      combined with compression utilities like `gzip` to create a `.tar.gz`
+      file, which archives and compresses files in one step.
+
+      The most used options of the tar command are:
+        -c create
+        -x extract
+        -v verbose
+        -f filename
+        -z compress
+        -l list
+    action: |
+      1. Create a temporary directory with a few files inside:
+         `mkdir ~/archive_test`
+         `touch ~/archive_test/file{1..20}.txt``
+         `tree ~/archive_test`
+      2. Archive and compress the directory into a `.tar.gz` file:
+         `tar -czvf archive.tar.gz .`
+    verification: ls -l ~/archive_test/archive.tar.gz
+    exit_code: 0
+
+  - name: Unarchive and decompress files (tar)
+    description: |
+      To unarchive and decompress a `.tar.gz` file, you can use the same
+      `tar` command with different options.
+    action: |
+      Let's extract the archive you just created.
+
+      1. Move your archive out of the directory:
+         `mv ~/archive_test/archive.tar.gz ~/`
+         `cd ~`
+      2. Extract the archive into a new directory:
+         `mkdir ~/unarchive_test`
+         `tar -xzf ~/archive.tar.gz -C ~/unarchive_test/`
+      3. Verify the files are extracted:
+         `tree ~/unarchive_test`
+    verification: ls ~/unarchive_test | grep -q "file1.txt"
+    exit_code: 0
+
+  - name: Compressing (gzip) and Decompressing (gunzip)
+    description: |
+      The `gzip` command compresses a single file, replacing the original
+      with a compressed file ending in `.gz`. `gunzip` decompresses it.
+    action: |
+      1. Create a test file:
+         `touch ~/testfile.txt`
+      2. Compress it with `gzip`:
+         `gzip ~/testfile.txt`
+      3. Decompress it with `gunzip`:
+         `gunzip ~/testfile.txt.gz`
+    verification: ls -l ~/testfile.txt
+    exit_code: 0
+
+  - name: Compressing (bzip2) and decompressing (bzip2)
+    description: |
+      The `bzip2` command is another compression utility, similar to `gzip`,
+      but it often provides better compression at the cost of being slower.
+      It creates files ending in `.bz2`.
+    action: |
+      1. Create a test file:
+         `touch ~/testfile2.txt`
+      2. Compress it with `bzip2`:
+         `bzip2 ~/testfile2.txt`
+      3. Decompress it with `bunzip2`:
+         `bunzip2 ~/testfile2.txt.bz2`
+    verification: ls -l ~/testfile2.txt
+    exit_code: 0
+
+  - name: Compressing (zip) and decompressing (zip)
+    description: |
+      The `zip` command is a popular utility for creating compressed archives
+      that can contain multiple files and directories. `unzip` is used for
+      extracting them.
+    action: |
+      1. Create a directory with a few files:
+         `mkdir ~/zip_test && cd ~/zip_test`
+         `touch file1.txt file2.txt`
+      2. Create a zip archive:
+         `zip -r my_archive.zip .`
+      3. Extract the archive into a new location:
+         `mkdir ~/unzip_test`
+         `unzip my_archive.zip -d ~/unzip_test`
+    verification: ls -l ~/unzip_test | grep -q "file1.txt"
+    exit_code: 0
+
+  - name: Compressing (xz) and decompressing (xz)
+    description: |
+      `xz` is a powerful compression utility that uses the LZMA2 algorithm.
+      It generally provides the best compression ratio but is slower than
+      `gzip` and `bzip2`. Files compressed with `xz` end with `.xz`.
+    action: |
+      1. Create a test file:
+         `touch ~/testfile3.txt`
+      2. Compress it with `xz`:
+         `xz ~/testfile3.txt`
+      3. Decompress it with `unxz`:
+         `unxz ~/testfile3.txt.xz`
+    verification: ls -l ~/testfile3.txt
+    exit_code: 0
+
+  - name: Copying across the network (scp)
+    description: |
+      The `scp` command (secure copy) is a secure and simple way to copy
+      files between a local and a remote machine. It uses the SSH protocol.
+      The format is `scp [source] [user@host]:[destination]`.
+    action: |
+      1. Ensure you have an SSH key set up and access to a remote host.
+         Create a local test file:
+         `touch ~/local_file.txt`
+      2. Copy the file to the remote host. You'll need to know the remote
+         host's username and IP address.
+         `scp ~/local_file.txt <user>@<host>:/home/<user>/remote_file.txt`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Synchronizing files (rsync)
+    description: |
+      The `rsync` command is a versatile tool for synchronizing files and
+      directories, locally or remotely. It is highly efficient because it
+      only transfers the differences between the source and destination files.
+    action: |
+      Let's synchronize a local directory to a remote host.
+
+      1. Create a local test directory with a file:
+         `mkdir ~/sync_test`
+         `echo "Hello" > ~/sync_test/file1.txt`
+      2. Run `rsync` to synchronize the directory to a remote host:
+         `rsync -avz ~/sync_test/ <user>@<host>:/path/to/remote/dir`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Copying across the network (sftp)
+    description: |
+      `sftp` (SSH File Transfer Protocol) is an interactive utility for
+      securely copying files over SSH. It provides a command-line interface
+      similar to `ftp` for browsing and managing files on a remote system.
+    action: |
+      Start an `sftp` session with a remote host.
+
+      `sftp <user>@<host>`
+
+      Once connected, you can use commands like `ls`, `cd`, `get`, and `put`.
+      Type `help` to see a list of commands, and `exit` to quit.
+    verification: SKIP_CHECK
+    exit_code: 0
+
 ...

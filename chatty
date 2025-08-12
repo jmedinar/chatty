@@ -143,12 +143,12 @@ def display_current_task():
     if action_value is None or action_value.strip().upper() == "NEXT":
         action_message = f"{CP}Action: Press 'n' to continue{CR}"
     else:
-        action_message = f"{CA}Action: In your other terminal...\n{action_value}{CR}"
+        action_message = f"{CT}Action: In your other terminal...\n{C_HELP}{action_value}{CR}"
 
     print(f"\n{CH}--- {module_data.get('title', 'Unknown Module')} ---{CR}")
     print(f"{CH}--- Section: {module_data.get('section', 'Unknown Section')} ({current_task_index + 1}/{total_tasks}) ---{CR}")
     print(f"\n{CT}Task: {task.get('name', 'Unnamed Task')}\n{CR}")
-    print(f"{CD}Description:\n{task.get('description', 'No description provided.')}{CR}")
+    print(f"{CT}Description:\n{CD}{task.get('description', 'No description provided.')}{CR}")
     print(action_message)
 
     # print(f"{CA}Action: In your other terminal...\n{task.get('action', 'No action specified.')}{CR}")

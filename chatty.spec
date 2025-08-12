@@ -2,8 +2,8 @@
 # Spec file for building the chatty RPM package.
 
 Name:           chatty
-Version:        1.3
-Release:        1%{?dist}
+Version:        1.6
+Release:        0%{?dist}
 Summary:        An interactive Linux learning framework to build exercises in the CLI.
 License:        MIT
 URL:            https://github.com/jmedinar/chatty

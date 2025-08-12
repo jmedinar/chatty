@@ -6,17 +6,34 @@
   #   verification: 
   #   exit_code: 
 ---
-title: Command Line Text Processing and I/O Redirections
+title: Command Line Text Processing and I/O Redirection
 section: The grep command
 tasks:
 
-  # - name: Creating your first file
-  #   description: Creating a file is simple using the touch command.
-  #   action: "run the command `touch my_first_file.txt`"
-  #   verification: ls -l ~/my_first_file.txt
-  #   exit_code: 0
+  - name: Using the grep command
+    description: |
+      The `grep` command (Global Regular Expression Print) is an essential
+      tool for searching plain-text data sets for lines that match a regular
+      expression. It is most often used to filter the output of other commands.
+    action: |
+      Let's use `grep` to find lines containing "root" in the `/etc/passwd` file.
+      
+      `grep root /etc/passwd`
+      
+      Now let's use `ls -l` and pipe the output to `grep` to find lines with `d`
+      which represents directories
+      
+      `ls -l /etc/ | grep d`
+    verification: SKIP_CHECK
+    exit_code: 0
 
-  # - name: Removing your first file
+  - name: Creating your first file
+    description: Creating a file is simple using the touch command.
+    action: "run the command `touch my_first_file.txt`"
+    verification: ls -l ~/my_first_file.txt
+    exit_code: 0
+
+  # - name: Removing your first fil
   #   description: Use the `rm` command to remove files.
   #   action: "run the command `rm my_first_file.txt`"
   #   verification: ls -l ~/my_first_file.txt
