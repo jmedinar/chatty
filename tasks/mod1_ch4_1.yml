@@ -1,0 +1,371 @@
+# yaml-language-server: $schema=https://schemastore.org/yamllint.json
+# Example format and required fields
+  # - name: 
+  #   description: 
+  #   action: 
+  #   verification: 
+  #   exit_code: 
+---
+title: Understanding File Attributes
+section: Files and Permissions
+tasks:
+
+  - name: Linux file types
+    description: |
+
+      - Regular file Regular files are those without any imposed structure.
+      d Directory file contains named references to other files.
+      l Symbolic Link is a pointer to another file by name.
+      c Character device files let programs communicate with the system’s hardware.
+      s Local Domain Sockets allow processes to communicate locally and over the network.
+      p Named Pipes allow communication between two processes running on the same
+      b Block Device allow communication with storage hardware.
+
+    action: |
+      The first character of an `ls -l` command's output indicates the file type:
+      Let's examine some different file types on your system.
+
+      View the contents of the `/dev/` and `/etc/` directories at the same time 
+      and we will filter the output using the `grep` command to show only specific 
+      types of files from the list.
+
+      use `grep` to look for specific types:
+
+        Look for regular files:
+        `ls -l /dev/ /etc/ | grep ^-`
+
+        Look for directories:
+        `ls -l /dev/ /etc/ | grep ^d`
+        
+        Look for symbolic links:
+        `ls -l /dev/ /etc/ | grep ^l`
+        
+        Look for character device files:
+        `ls -l /dev/ /etc/ | grep ^c`
+        
+        Look for local domain sockets:
+        `ls -l /dev/ /etc/ | grep ^s`
+
+        Look for block device files:
+        `ls -l /dev/ /etc/ | grep ^b`
+
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Displaying file statistics and metadata (stat)
+    description: |
+      The `stat` command displays detailed metadata about a file or directory.
+      While `ls -l` shows basic information like permissions and size, `stat`
+      provides more in-depth data, including:
+
+      - Inode number
+      - Creation, Access, and Modification timestamps
+      - Block size and number of blocks
+    action: |
+      Use the `stat` command to view the metadata for your shell's configuration file.
+
+      `stat ~/.bashrc`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using (stat) to filter file attributes and generate specific formats
+    description: |
+      You can use the `-c` (format) option with `stat` to display specific
+      file metadata in a custom format, which is useful for scripting, and
+      generating reports.
+      
+      Here are some common format specifiers:
+      
+      - `%n`: filename
+      - `%s`: total size in bytes
+      - `%a`: access permissions in octal mode
+      - `%U`: owner name
+      - `%G`: group name
+
+      Take a look at the `--help` option of `stat` to see the full list.
+    action: |
+      Let's use `stat` to display just the permissions, size, and filename
+      of `/etc/passwd`.
+
+      `stat -c "%a %s %n" /etc/passwd`
+      
+      Now, let's add some formatting to make it more readable.
+
+      `stat -c "MODE: (%a) SIZE: (%s) FILE: (%n)" /etc/passwd`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding file ownership and permissions (ls -l)
+    description: |
+      The `ls -l` command provides a detailed list of file information,
+      including a file's permissions, ownership, and group. This is crucial
+      for understanding who can read, write, or execute a file.
+
+      The output looks like this:
+      -rwx------. 1 root root 1234 May 12 10:00 filename
+
+      The sections are as follows:
+
+      <filetype> <mode> <links> <owner> <group> <size> <date> <filename>
+      
+      Here's what each part means:
+        - filetype: Represents the file type
+        - mode: File's permissions.
+        - links: Number of hard links
+        - owner: Owner of the file.
+        - group: Group of the file.
+        - size: Size of the file in bytes.
+        - date: Date and time the file was last modified.
+        - filename: Name of the file.
+      
+    action: |
+      Let's use `ls -l` to check the ownership and permissions of a file.
+
+      `ls -l /etc/passwd`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Changing file ownership
+    description: |
+      The `chown` (change owner) command is used to change the user and/or
+      group ownership of a file or directory. This requires `sudo` or
+      root permissions.
+
+      The format is `chown <user>:<group> <file>`.
+    action: |
+      Let's create a file and then change its ownership.
+
+      1. Create a file in your home directory:
+         `touch ~/my_test_file.txt`
+
+      2. Use `ls -l` to confirm the file ownership:
+         `ls -l ~/my_test_file.txt`
+      
+      3. Change its ownership to the `root` user and `root` group:
+         `sudo chown root:root ~/my_test_file.txt`
+      
+      4. Use `ls -l` to confirm the ownership has changed.
+         `ls -l ~/my_test_file.txt`
+
+      5. Let's rollback, only the group and then list:
+         `sudo chown :$USER ~/my_test_file.txt`
+         `ls -l ~/my_test_file.txt`
+
+    verification: ls -l ~/my_test_file.txt | grep -q "root:"
+    exit_code: 0
+
+  - name: Changing file permissions using symbolic notation
+    description: |
+      The `chmod` command (change mode) is used to modify a file's permissions.
+      Symbolic notation uses a combination of letters to specify who gets
+      what permission.
+
+      Who:              Operator:         Permissions:
+        `u` (user)        `+` (add)         `r` (read)
+        `g` (group)       `-` (remove)      `w` (write)
+        `o` (other)       `=` (set)         `x` (execute)
+        `a` (all)  
+        
+    action: |
+      Let's change the permissions of a file.
+        Tip: Verify the permissions using `ls -l` after each change.
+
+      1. Create a new file:
+         `touch ~/permissions_test.txt`
+      
+      2. Remove all permissions from the file:
+         `chmod a-rwx ~/permissions_test.txt`
+
+      3. Add read, write, and execute permissions back for the user:
+         `chmod u+rwx ~/permissions_test.txt`
+
+      4. Add execute permissions for the group:
+         `chmod g+x ~/permissions_test.txt`
+
+      5. Add read permissions to the others:
+         `chmod o+r ~/permissions_test.txt`
+
+      6. Remove the execute permission from the user:
+         `chmod u-x ~/permissions_test.txt`
+
+      7. Now make the permissions `--xrw--w-` in a single command:
+         `chmod u=x,g=rw,o=w ~/permissions_test.txt`
+
+    verification: stat -c %a ~/permissions_test.txt | grep -q 162
+    exit_code: 0
+
+  - name: Changing file permissions using octal notation
+    description: |
+      Octal notation is another way to set file permissions with `chmod`.
+      We still represent three personas, user (u), group (g), and others (o)
+      But we use numbers, to represent permissions for each persona, where:
+
+      read(r) = 4    write(w) = 2   execute(x) = 1
+
+      For example: rwxr-xr-x is `755` in octal notation.
+      
+      Because:
+        rwx for the user equals (4+2+1) = 7
+        r-x for the group equals (4+1) = 5
+        r-x for others equals (4+1) = 5
+    action: |
+      Let's set a file to test using octal notation.
+      (Use `ls -l` to confirm the permissions after each change.)
+
+      1. Create a new file:
+         `touch ~/octal_test.txt`
+      2. Remove all the permissions:
+         `chmod 000 ~/octal_test.txt`
+      3. Add read, write, and execute permissions for the user
+         `chmod 700 ~/octal_test.txt`
+      4. Add read permissions for the group:
+         `chmod 740 ~/octal_test.txt`
+      5. Add read and execute permissions for others:
+         `chmod 745 ~/octal_test.txt`
+    verification: stat -c %a ~/octal_test.txt | grep -q 745
+    exit_code: 0
+
+  - name: Understanding special mode (setuid)
+    description: |
+      The `setuid` (Set User ID) special permission bit is used on executable
+      files. When set, it allows a user to run the file with the permissions
+      of the file's owner, typically `root`. The `setuid` bit is represented
+      by an `s` in the owner's execute permission field (e.g., `-rwsr-xr-x`).
+
+      IMPORTANT: For security reasons `setuid` is not allowed on shell
+      scripts and its only honored in binary files.
+    action: |
+      1. Create the file `~/hello.cpp` in your text editor with the following content:
+          #include <iostream>
+          #include <unistd.h>
+          #include <pwd.h>
+          int main() {
+            uid_t euid = geteuid();
+            passwd *p = getpwuid(euid);
+            std::cout << "Running as UID: " << euid << " (" << p->pw_name << ")" << std::endl;
+            return 0;
+          }
+
+      2. Save the file and compile it with the command: `g++ ~/hello.cpp -o ~/hello`
+        In case of error run: (sudo dnf install -y gcc-c++)
+
+      3. Run the binary program: `~/hello`
+
+      4. Change the ownership to root and run it again:
+         `sudo chown root:root ~/hello`
+         `~/hello`
+
+      5. Set the `setuid` and execute one more time:
+         `sudo chmod u+s ~/hello`
+         `~/hello`
+    verification: stat -c %a ~/hello | grep -q 4755
+    exit_code: 0
+
+  - name: Understanding special mode (setgid)
+    description: |
+      The `setgid` (Set Group ID) special permission bit is similar to `setuid`,
+      but it applies to directories. When a file is created in a directory
+      with the `setgid` bit set, it inherits the group ownership of that
+      directory instead of the user's primary group.
+      
+      This is useful for shared directories where all files should belong to
+      a single group. The `setgid` bit is represented by an `s` in the group's
+      execute permission field (e.g., `-rwxrw-sr--`).
+    action: |
+      1. Create a directory and a new group for testing:
+         `sudo groupadd sharedgroup`
+         `mkdir ~/test-setgid`
+         `ls -ld ~/test-setgid`
+
+      2. Try creating a file in the new directory
+         `touch ~/test-setgid/my-file.txt`
+
+      3. Change the group that owns the directory to the new group created
+         `sudo chown :sharedgroup ~/test-setgid`
+         `ls -ld ~/test-setgid`
+
+      4. Set the `setgid` bit on the directory:
+         `sudo chmod g+s ~/test-setgid`
+         `ls -ld ~/test-setgid`
+
+      5. Create a new file in the directory:
+         `touch ~/test-setgid/shared-file.txt`
+         `ls -l ~/test-setgid/`
+    verification: stat -c %G ~/test-setgid/shared-file.txt | grep -q sharedgroup
+    exit_code: 0
+
+  - name: Understanding special mode (sticky-bit)
+    description: |
+      The `sticky-bit` is a special permission bit typically used on
+      directories with public write permissions. When set, it prevents
+      users from deleting or renaming files in that directory unless
+      they own the file, are the owner of the directory, or are `root`.
+      
+      This is how `sticky-bit` prevents a user from deleting another
+      user's files in shared directories like `/tmp`. The bit is
+      represented by a `t` at the end of the permissions string
+      (e.g., `drwxrwxrwt`).
+    action: |
+      Let's create a temporary shared directory to demonstrate the sticky-bit.
+
+      1. As root (sudo) create a new directory and give it global write permissions:
+         `sudo mkdir /test-sticky`
+         `sudo chmod 1777 /test-sticky`
+         `ls -ld /test-sticky`
+
+      2. As your regular user create a file in that directory. It will work.
+         `touch /test-sticky/user1.txt`
+
+      3. Create a new user "test-user" and switch to it:
+         `sudo useradd test-user`
+         `sudo su - test-user`
+
+      4. Now, as the new user see if you can create a new file
+         `touch /test-sticky/user2.txt``
+      
+      5. Also as the new user try to delete the first created file, it would fail.
+         `rm /test-sticky/user1.txt`
+
+      6. Done! type `exit` to return to your regular user
+    verification: stat -c %a /test-sticky | grep -q 1777
+    exit_code: 0
+
+  - name: Understanding default permissions (umask)
+    description: |
+      The `umask` (user mask) command determines the default file
+      permissions for new files and directories created by a user.
+      It's a security measure that masks out certain permissions.
+      
+      The `umask` value is a three-digit octal number. The default is typically `0022`.
+      To calculate the final permissions, you subtract the `umask` from the
+      maximum allowed permissions:
+      
+      - **Files:** `666` (no execute) - `022` = `644` (`rw-r--r--`)
+      - **Directories:** `777` (full access) - `022` = `755` (`rwxr-xr-x`)
+    action: |
+      Let's observe your current `umask` and see how it affects a new file.
+
+      1. View your current `umask`:
+         `umask`
+      
+      2. Create a file and a directory:
+         `touch ~/umask-test-file.txt`
+         `mkdir ~/umask-test-dir`
+
+      3. Use `stat` to compare permissions to current your `umask` value.
+         `stat -c "%a %n` ~/umask*
+
+      4. Now let's change the umask and create a new set of files
+        `umask 0000`
+        `touch ~/umask-test-file2.txt`
+        `mkdir ~/umask-test-dir2`
+
+      5. Use `stat` again to compare
+         `stat -c "%a %n` ~/umask*
+
+      6. IMPORTANT: Rollback the change made to the umask
+        `umask 0022`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+...

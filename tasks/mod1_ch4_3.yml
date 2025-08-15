@@ -1,0 +1,138 @@
+# yaml-language-server: $schema=https://schemastore.org/yamllint.json
+# Example format and required fields
+  # - name: 
+  #   description: 
+  #   action: 
+  #   verification: 
+  #   exit_code: 
+---
+title: Understanding File Attributes
+section: Packaging and Archiving Files
+tasks:
+
+  - name: Unarchive and decompress files (tar)
+    description: |
+      To unarchive and decompress a `.tar.gz` file, you can use the same
+      `tar` command with different options.
+    action: |
+      Let's extract the archive you just created.
+
+      1. Move your archive out of the directory:
+         `mv ~/archive_test/archive.tar.gz ~/`
+         `cd ~`
+      2. Extract the archive into a new directory:
+         `mkdir ~/unarchive_test`
+         `tar -xzf ~/archive.tar.gz -C ~/unarchive_test/`
+      3. Verify the files are extracted:
+         `tree ~/unarchive_test`
+    verification: ls ~/unarchive_test | grep -q "file1.txt"
+    exit_code: 0
+
+  - name: Compressing (gzip) and Decompressing (gunzip)
+    description: |
+      The `gzip` command compresses a single file, replacing the original
+      with a compressed file ending in `.gz`. `gunzip` decompresses it.
+    action: |
+      1. Create a test file:
+         `touch ~/testfile.txt`
+      2. Compress it with `gzip`:
+         `gzip ~/testfile.txt`
+      3. Decompress it with `gunzip`:
+         `gunzip ~/testfile.txt.gz`
+    verification: ls -l ~/testfile.txt
+    exit_code: 0
+
+  - name: Compressing (bzip2) and decompressing (bzip2)
+    description: |
+      The `bzip2` command is another compression utility, similar to `gzip`,
+      but it often provides better compression at the cost of being slower.
+      It creates files ending in `.bz2`.
+    action: |
+      1. Create a test file:
+         `touch ~/testfile2.txt`
+      2. Compress it with `bzip2`:
+         `bzip2 ~/testfile2.txt`
+      3. Decompress it with `bunzip2`:
+         `bunzip2 ~/testfile2.txt.bz2`
+    verification: ls -l ~/testfile2.txt
+    exit_code: 0
+
+  - name: Compressing (zip) and decompressing (zip)
+    description: |
+      The `zip` command is a popular utility for creating compressed archives
+      that can contain multiple files and directories. `unzip` is used for
+      extracting them.
+    action: |
+      1. Create a directory with a few files:
+         `mkdir ~/zip_test && cd ~/zip_test`
+         `touch file1.txt file2.txt`
+      2. Create a zip archive:
+         `zip -r my_archive.zip .`
+      3. Extract the archive into a new location:
+         `mkdir ~/unzip_test`
+         `unzip my_archive.zip -d ~/unzip_test`
+    verification: ls -l ~/unzip_test | grep -q "file1.txt"
+    exit_code: 0
+
+  - name: Compressing (xz) and decompressing (xz)
+    description: |
+      `xz` is a powerful compression utility that uses the LZMA2 algorithm.
+      It generally provides the best compression ratio but is slower than
+      `gzip` and `bzip2`. Files compressed with `xz` end with `.xz`.
+    action: |
+      1. Create a test file:
+         `touch ~/testfile3.txt`
+      2. Compress it with `xz`:
+         `xz ~/testfile3.txt`
+      3. Decompress it with `unxz`:
+         `unxz ~/testfile3.txt.xz`
+    verification: ls -l ~/testfile3.txt
+    exit_code: 0
+
+  - name: Copying across the network (scp)
+    description: |
+      The `scp` command (secure copy) is a secure and simple way to copy
+      files between a local and a remote machine. It uses the SSH protocol.
+      The format is `scp [source] [user@host]:[destination]`.
+    action: |
+      1. Ensure you have an SSH key set up and access to a remote host.
+         Create a local test file:
+         `touch ~/local_file.txt`
+      2. Copy the file to the remote host. You'll need to know the remote
+         host's username and IP address.
+         `scp ~/local_file.txt <user>@<host>:/home/<user>/remote_file.txt`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Synchronizing files (rsync)
+    description: |
+      The `rsync` command is a versatile tool for synchronizing files and
+      directories, locally or remotely. It is highly efficient because it
+      only transfers the differences between the source and destination files.
+    action: |
+      Let's synchronize a local directory to a remote host.
+
+      1. Create a local test directory with a file:
+         `mkdir ~/sync_test`
+         `echo "Hello" > ~/sync_test/file1.txt`
+      2. Run `rsync` to synchronize the directory to a remote host:
+         `rsync -avz ~/sync_test/ <user>@<host>:/path/to/remote/dir`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Copying across the network (sftp)
+    description: |
+      `sftp` (SSH File Transfer Protocol) is an interactive utility for
+      securely copying files over SSH. It provides a command-line interface
+      similar to `ftp` for browsing and managing files on a remote system.
+    action: |
+      Start an `sftp` session with a remote host.
+
+      `sftp <user>@<host>`
+
+      Once connected, you can use commands like `ls`, `cd`, `get`, and `put`.
+      Type `help` to see a list of commands, and `exit` to quit.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+...
