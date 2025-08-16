@@ -15,11 +15,24 @@ tasks:
       The `mkdir` command is used to create new directories. It is a
       fundamental command for organizing your filesystem.
     action: |
-      Let's create a new directory in your home folder.
+      (see the directory structure with `tree ~/new` after each command)
 
-      `mkdir ~/new_directory`
-      `ls -l ~`
-    verification: ls -ld ~/new_directory
+      1. Let's create a new directory in your home folder.
+        `mkdir ~/new`
+      
+      2. Now, make another directory inside the `new` directory.
+        `mkdir ~/new/dir1`
+
+      3. You can also create multiple directories at once.
+        `mkdir ~/new/dir2 ~/new/dir3`
+      
+      4. You can also create directories recursively using `-p`.
+        `mkdir -p ~/new/dir1/dir2/dir3`
+
+      5. Use regular expressions to create directories.
+        `mkdir ~/new/dir{10..20}`
+      
+    verification: ls -ld ~/new
     exit_code: 0
 
   - name: Making files
@@ -27,59 +40,77 @@ tasks:
       The `touch` command is used to create a new, empty file or update
       the timestamp of an existing file.
     action: |
-      Let's create a new file in the directory you just made.
+      (see the new files create with `tree ~/new` after each command)
 
-      `touch ~/new_directory/my_file.txt`
-      `ls -l ~/new_directory`
-    verification: ls ~/new_directory/my_file.txt
+      1. Create a new file in your "new" directory.
+         `touch ~/new/my_file.txt`
+
+      2. Create multiple files at once.
+         `touch ~/new/file1.txt ~/new/file2.txt`
+
+      3. Use regular expressions to create files.
+         `touch ~/new/file{1..5}.txt`
+
+      4. Change the timestamp of an existing file.
+         `touch ~/new/my_file.txt`
+
+    verification: ls ~/new/my_file.txt
     exit_code: 0
 
   - name: Copying files and directories
     description: |
-      The `cp` command is used to copy files and directories. The format is
-      `cp [source] [destination]`. When copying directories, you must use
-      the `-r` (recursive) option.
+      The `cp` command is used to copy files and directories. 
+      
+      The format is:
+
+          cp [source] [destination]
+          
+      When copying directories, use the `-r` (recursive) option.
     action: |
       Let's copy the file you just created.
 
       1. Copy `my_file.txt` to a new file named `my_file_copy.txt`:
-         `cp ~/new_directory/my_file.txt ~/new_directory/my_file_copy.txt`
-      2. Verify both files exist:
-         `ls -l ~/new_directory`
-      3. Copy the directory
-         `cp -r ~/new_directory ~/new_directory_copy`
-      4. Verify both directories exist:
-         `ls -dl ~/new_directory*`
-    verification: ls -l ~/new_directory/my_file_copy.txt
+         `cp ~/new/my_file.txt ~/new/my_file_copy.txt`
+
+      2. Copy the directory by using `-r`:
+         `cp -r ~/new ~/new_copy`
+    verification: ls -l ~/new/my_file_copy.txt
     exit_code: 0
 
   - name: Moving and renaming files and directories
     description: |
       The `mv` command is used to move files and directories. When the destination
-      is a new name in the same directory, it effectively renames the file.
-      The format is `mv [source] [destination]`.
+      is uses a new name, it effectively renames the file.
+
+      The format is: 
+      
+        `mv [source] [destination]`
     action: |
       Let's rename the file you just copied.
 
       1. Rename `my_file_copy.txt` to `my_file_renamed.txt`:
-         `mv ~/new_directory/my_file_copy.txt ~/new_directory/my_file_renamed.txt`
-      2. Verify the new name:
-         `ls -l ~/new_directory`
-    verification: ls -l ~/new_directory/my_file_renamed.txt
+         `mv ~/new/my_file_copy.txt ~/new/my_file_renamed.txt`
+
+      2. Now, move the renamed file to the other copy of the directory you created.
+         `mv ~/new/my_file_renamed.txt ~/new_copy/
+
+    verification: ls -l ~/new_copy/my_file_renamed.txt
     exit_code: 0
 
   - name: Deleting files
     description: |
       The `rm` command (remove) is used to delete files. By default, it
       does not prompt for confirmation. Use with caution!
+
+      WARNING: Deleting files is a permanent action, there is 
+               no "trash bin" to recover files deleted in the terminal
     action: |
-      Let's delete the `my_file_renamed.txt` file you created.
+      Let's delete the `my_file_renamed.txt`.
 
       1. Delete the file:
-         `rm ~/new_directory/my_file_renamed.txt`
-      2. Verify the file is gone:
-         `ls -l ~/new_directory`
-    verification: ls -l ~/new_directory/my_file_renamed.txt
+         `rm ~/new_copy/my_file_renamed.txt`
+
+    verification: ls -l ~/new_copy/my_file_renamed.txt
     exit_code: 1
 
   - name: Deleting directories
@@ -91,46 +122,68 @@ tasks:
 
       1. Delete the directory:
          `rm -r ~/new_directory`
-      2. Verify the directory is gone:
-         `ls -l ~`
+
     verification: ls -ld ~/new_directory
     exit_code: 1
 
-  - name: Making symbolic links
+  - name: Making symbolic links (soft links)
     description: |
-      The `ln` command (link) creates a link to a file. A symbolic link (or soft link)
-      is a file that points to another file or directory by its name. The
-      format is `ln -s [target] [link_name]`.
-    action: |
-      Let's create a symbolic link to the `/etc/passwd` file in your home directory.
+      The `ln` command (link) creates a link to a file. A symbolic link 
+      (or soft link) is a file that points to another file or directory
+      by its name. The format is 
+      
+        ln -s [target] [link_name]
 
-      1. Create the link:
+      Its a good practice to use full paths when creating symbolic links.
+
+      When the target file is deleted or moved, the link is consider to be broken.
+
+      A symbolic link can also be used to create a shortcut to a directory.
+    action: |
+      (use `ls -l *link*` after each command to see the link)
+
+      1. Create a symbolic link to the `/etc/passwd` file in your home directory.
          `ln -s /etc/passwd ~/passwd_link`
-      2. Use `ls -l` to see the link:
-         `ls -l ~/passwd_link`
+
+      2. Create a symbolic link to the /tmp directory.
+         `ln -s /tmp ~/tmp_link`
+
+      3. Create a new file to use it as target and then create a symbolic link to it.
+         `touch ~/target_file.txt`
+         `ln -s ~/target_file.txt ~/target_link`
+        
+      4. Now, delete the target file and observe the effect on the link.
+         `rm ~/target_file.txt`
+         `ls -l ~/target_link`
+      
     verification: ls -l ~/passwd_link | grep -q "/etc/passwd"
     exit_code: 0
 
   - name: Making hard links
     description: |
-      A **hard link** is a direct pointer to a file's data on the disk.
-      Multiple hard links to the same file share the exact same content
-      and inode number. Deleting a hard link does not delete the file
-      until the last link is removed.
+      A *hard link* is a pointer to a file's position on the disk. (not to its name)
 
-      The `ln` command is used to create hard links.
+      - Hard links share the exact same content and inode number.
+      - Deleting a hard link does not delete the target file.
+      - Deleting the target file does not delete the hard link.
+
+      "Hard Links are a great way to make backups of files."
     action: |
       Let's create a file and then make a hard link to it.
 
-      1. Create a file and check its inode number (`-i`):
-         `touch ~/my_original_file.txt`
-         `ls -li ~/my_original_file.txt`
+      1. Create a file containing the string "Music is life!" and check its inode number (`-i`):
+         `echo "Music is life!" > ~/my_target_file.txt`
+         `ls -i ~/my_target_file.txt`
 
-      2. Create a hard link to the file:
-         `ln ~/my_original_file.txt ~/my_hard_link.txt`
+      2. Create a hard link to the file and check its inode number, and content:
+         `ln ~/my_target_file.txt ~/my_hard_link.txt`
+         `ls -li ~/my_target_file.txt ~/my_hard_link.txt`
+         `more ~/my_target_file.txt ~/my_hard_link.txt`
 
-      3. Now, check both files. They should have the same inode number.
-         `ls -li ~/my_original_file.txt ~/my_hard_link.txt`
+      3. Now, delete the target file and observe content on the remaining hard link.
+         `rm ~/my_target_file.txt`
+         `more ~/my_hard_link.txt`
+
     verification: SKIP_CHECK
     exit_code: 0
 
