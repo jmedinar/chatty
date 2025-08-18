@@ -6,8 +6,8 @@
   #   verification: 
   #   exit_code: 
 ---
-title: Understanding File Attributes
-section: Files and Permissions
+title: Chapter 4
+section: Understanding File Attributes
 tasks:
 
   - name: Linux file types
@@ -365,6 +365,318 @@ tasks:
 
       6. IMPORTANT: Rollback the change made to the umask
         `umask 0022`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Making directories
+    description: |
+      The `mkdir` command is used to create new directories. It is a
+      fundamental command for organizing your filesystem.
+    action: |
+      (see the directory structure with `tree ~/new` after each command)
+
+      1. Let's create a new directory in your home folder.
+        `mkdir ~/new`
+      
+      2. Now, make another directory inside the `new` directory.
+        `mkdir ~/new/dir1`
+
+      3. You can also create multiple directories at once.
+        `mkdir ~/new/dir2 ~/new/dir3`
+      
+      4. You can also create directories recursively using `-p`.
+        `mkdir -p ~/new/dir1/dir2/dir3`
+
+      5. Use regular expressions to create directories.
+        `mkdir ~/new/dir{10..20}`
+      
+    verification: ls -ld ~/new
+    exit_code: 0
+
+  - name: Making files
+    description: |
+      The `touch` command is used to create a new, empty file or update
+      the timestamp of an existing file.
+    action: |
+      (see the new files create with `tree ~/new` after each command)
+
+      1. Create a new file in your "new" directory.
+         `touch ~/new/my_file.txt`
+
+      2. Create multiple files at once.
+         `touch ~/new/file1.txt ~/new/file2.txt`
+
+      3. Use regular expressions to create files.
+         `touch ~/new/file{1..5}.txt`
+
+      4. Change the timestamp of an existing file.
+         `touch ~/new/my_file.txt`
+
+    verification: ls ~/new/my_file.txt
+    exit_code: 0
+
+  - name: Copying files and directories
+    description: |
+      The `cp` command is used to copy files and directories. 
+      
+      The format is:
+
+          cp [source] [destination]
+          
+      When copying directories, use the `-r` (recursive) option.
+    action: |
+      Let's copy the file you just created.
+
+      1. Copy `my_file.txt` to a new file named `my_file_copy.txt`:
+         `cp ~/new/my_file.txt ~/new/my_file_copy.txt`
+
+      2. Copy the directory by using `-r`:
+         `cp -r ~/new ~/new_copy`
+    verification: ls -l ~/new/my_file_copy.txt
+    exit_code: 0
+
+  - name: Moving and renaming files and directories
+    description: |
+      The `mv` command is used to move files and directories. When the destination
+      is uses a new name, it effectively renames the file.
+
+      The format is: 
+      
+        `mv [source] [destination]`
+    action: |
+      Let's rename the file you just copied.
+
+      1. Rename `my_file_copy.txt` to `my_file_renamed.txt`:
+         `mv ~/new/my_file_copy.txt ~/new/my_file_renamed.txt`
+
+      2. Now, move the renamed file to the other copy of the directory you created.
+         `mv ~/new/my_file_renamed.txt ~/new_copy/
+
+    verification: ls -l ~/new_copy/my_file_renamed.txt
+    exit_code: 0
+
+  - name: Deleting files
+    description: |
+      The `rm` command (remove) is used to delete files. By default, it
+      does not prompt for confirmation. Use with caution!
+
+      WARNING: Deleting files is a permanent action, there is 
+               no "trash bin" to recover files deleted in the terminal
+    action: |
+      Let's delete the `my_file_renamed.txt`.
+
+      1. Delete the file:
+         `rm ~/new_copy/my_file_renamed.txt`
+
+    verification: ls -l ~/new_copy/my_file_renamed.txt
+    exit_code: 1
+
+  - name: Deleting directories
+    description: |
+      To delete a directory, you must use `rm` with the `-r` (recursive) option.
+      This deletes the directory and all of its contents.
+    action: |
+      Let's delete the `new_directory` you created.
+
+      1. Delete the directory:
+         `rm -r ~/new_directory`
+
+    verification: ls -ld ~/new_directory
+    exit_code: 1
+
+  - name: Making symbolic links (soft links)
+    description: |
+      The `ln` command (link) creates a link to a file. A symbolic link 
+      (or soft link) is a file that points to another file or directory
+      by its name. The format is 
+      
+        ln -s [target] [link_name]
+
+      Its a good practice to use full paths when creating symbolic links.
+
+      When the target file is deleted or moved, the link is consider to be broken.
+
+      A symbolic link can also be used to create a shortcut to a directory.
+    action: |
+      (use `ls -l *link*` after each command to see the link)
+
+      1. Create a symbolic link to the `/etc/passwd` file in your home directory.
+         `ln -s /etc/passwd ~/passwd_link`
+
+      2. Create a symbolic link to the /tmp directory.
+         `ln -s /tmp ~/tmp_link`
+
+      3. Create a new file to use it as target and then create a symbolic link to it.
+         `touch ~/target_file.txt`
+         `ln -s ~/target_file.txt ~/target_link`
+        
+      4. Now, delete the target file and observe the effect on the link.
+         `rm ~/target_file.txt`
+         `ls -l ~/target_link`
+      
+    verification: ls -l ~/passwd_link | grep -q "/etc/passwd"
+    exit_code: 0
+
+  - name: Making hard links
+    description: |
+      A *hard link* is a pointer to a file's position on the disk. (not to its name)
+
+      - Hard links share the exact same content and inode number.
+      - Deleting a hard link does not delete the target file.
+      - Deleting the target file does not delete the hard link.
+
+      "Hard Links are a great way to make backups of files."
+    action: |
+      Let's create a file and then make a hard link to it.
+
+      1. Create a file containing the string "Music is life!" and check its inode number (`-i`):
+         `echo "Music is life!" > ~/my_target_file.txt`
+         `ls -i ~/my_target_file.txt`
+
+      2. Create a hard link to the file and check its inode number, and content:
+         `ln ~/my_target_file.txt ~/my_hard_link.txt`
+         `ls -li ~/my_target_file.txt ~/my_hard_link.txt`
+         `more ~/my_target_file.txt ~/my_hard_link.txt`
+
+      3. Now, delete the target file and observe content on the remaining hard link.
+         `rm ~/my_target_file.txt`
+         `more ~/my_hard_link.txt`
+
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Archiving (tar)
+    description: |
+      The `tar` command is used to create archives of files and directories.
+      It can be used with a single file or a whole directory.
+
+      The format is:
+
+        tar [options] [source] [destination]
+
+    action: |
+      Let's create an archive of a file and a directory.
+
+      1. Create a test directory:
+         `mkdir ~/dir1`
+      2. Create a test file in the directory:
+         `touch ~/dir1/file1.txt`
+      3. Create an archive of the file and directory:
+         `tar -cvf archive.tar dir1/`
+      4. Create a new file outside the directory:
+         `touch ~/file2.txt`
+      5. Add the new file to the archive:
+         `tar -cvf archive.tar dir1/ file2.txt`
+      6. List the contents of the archive:
+         `tar -tf archive.tar`
+      8. Create a new archive file but with compression
+         `tar -czvf archive_compressed.tar.gz dir1/ file2.txt`
+      9. List the two archived files and compare their size.
+         `du -sh archive*`
+    verification: ls -l ~/archive.tar.gz
+    exit_code: 0
+
+  - name: Unarchive and decompress files (tar)
+    description: |
+      To unarchive use `-x` and `-z` to decompress
+    action: |
+      1. Remove the dir1 directory and the file2.txt:
+         `rm -rf ~/dir1/ file2.txt`
+      2. Extract your compressed archive:
+         `tar -xvzf ~/archive_compressed.tar.gz`
+      3. Verify that your files are there:
+         `ls -l ~/dir1/ file2.txt`
+      4. Extract the archive into a new 'backups' directory:
+         `mkdir ~/backups`
+         `tar -xvf ~/archive.tar -C ~/backups/`
+         `tree ~/backups/`
+
+         The `-C` option specifies the destination directory
+    verification: ls ~/unarchive_test | grep -q "file1.txt"
+    exit_code: 0
+
+  - name: Compressing (gzip) and Decompressing (gunzip)
+    description: |
+      The `gzip` command compresses a single file, replacing the original
+      with a compressed file ending in `.gz`. `gunzip` decompresses it.
+    action: |
+      1. Create a test file:
+         `touch ~/testfile.txt`
+      2. Compress it with `gzip`:
+         `gzip ~/testfile.txt`
+      3. Decompress it with `gunzip`:
+         `gunzip ~/testfile.txt.gz`
+    verification: ls -l ~/testfile.txt
+    exit_code: 0
+
+  - name: Compressing (bzip2) and decompressing (bzip2)
+    description: |
+      The `bzip2` command is another compression utility, similar to `gzip`,
+      but it often provides better compression at the cost of being slower.
+      It creates files ending in `.bz2`.
+    action: |
+      1. Create a test file:
+         `touch ~/testfile2.txt`
+      2. Compress it with `bzip2`:
+         `bzip2 ~/testfile2.txt`
+      3. Decompress it with `bunzip2`:
+         `bunzip2 ~/testfile2.txt.bz2`
+    verification: ls -l ~/testfile2.txt
+    exit_code: 0
+
+  - name: Compressing (zip) and decompressing (zip)
+    description: |
+      The `zip` command is a popular utility for creating compressed archives
+      that can contain multiple files and directories. `unzip` is used for
+      extracting them.
+    action: |
+      1. Create a directory with a few files:
+         `mkdir ~/zip_test && cd ~/zip_test`
+         `touch file1.txt file2.txt`
+      2. Create a zip archive:
+         `zip -r my_archive.zip .`
+      3. Extract the archive into a new location:
+         `mkdir ~/unzip_test`
+         `unzip my_archive.zip -d ~/unzip_test`
+    verification: ls -l ~/unzip_test | grep -q "file1.txt"
+    exit_code: 0
+
+  - name: Compressing (xz) and decompressing (xz)
+    description: |
+      `xz` is a powerful compression utility that uses the LZMA2 algorithm.
+      It generally provides the best compression ratio but is slower than
+      `gzip` and `bzip2`. Files compressed with `xz` end with `.xz`.
+    action: |
+      1. Create a test file:
+         `touch ~/testfile3.txt`
+      2. Compress it with `xz`:
+         `xz ~/testfile3.txt`
+      3. Decompress it with `unxz`:
+         `unxz ~/testfile3.txt.xz`
+    verification: ls -l ~/testfile3.txt
+    exit_code: 0
+
+  - name: Synchronizing files (rsync)
+    description: |
+      The `rsync` command is a versatile tool for synchronizing files and
+      directories, locally or remotely. It is highly efficient because it
+      only transfers the differences between the source and destination files.
+    action: |
+      Let's synchronize a local directory to another directory.
+
+      1. Create a local test directory with a file:
+         `mkdir ~/sync_test`
+         `echo "Hello" > ~/sync_test/file1.txt`
+      2. Create another directory to synchronize to:
+         `mkdir ~/sync_backup/`
+      3. Run `rsync` to synchronize the backup directory:
+         `rsync -avz ~/sync_test/ ~/sync_backup/`
+      4. Create a new file in the local directory:
+         `echo "World" > ~/sync_test/file2.txt`
+      5. Run `rsync` again to synchronize the backup directory:
+         `rsync -avz ~/sync_test/ ~/sync_backup/`
+      6. The same process can be applied to a remote host:
+         `rsync -avz ~/sync_test/ <user>@<host>:/path/to/remote/dir`
     verification: SKIP_CHECK
     exit_code: 0
 

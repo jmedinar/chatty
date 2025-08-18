@@ -6,8 +6,8 @@
   #   verification: 
   #   exit_code: 
 ---
-title: Command Line Text Processing and I/O Redirection
-section: The grep command
+title: Chapter 3
+section: Command Line Text Processing and I/O Redirection
 tasks:
 
   - name: Using the grep command
@@ -33,9 +33,4 @@ tasks:
     verification: ls -l ~/my_first_file.txt
     exit_code: 0
 
-  # - name: Removing your first fil
-  #   description: Use the `rm` command to remove files.
-  #   action: "run the command `rm my_first_file.txt`"
-  #   verification: ls -l ~/my_first_file.txt
-  #   exit_code: 1
 ...
