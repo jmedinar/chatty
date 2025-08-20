@@ -52,7 +52,7 @@ tasks:
       
       We will explore more regular expression features in later chapters, but for now,
       let's explore some basic regex patterns with `grep`.
-    action: |;
+    action: |
       Find lines in the `/etc/passwd` file that:
         1. Contain a username starting with "a" followed by any characters.
             grep "^a.*" /etc/passwd
