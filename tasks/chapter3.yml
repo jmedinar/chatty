@@ -18,19 +18,797 @@ tasks:
     action: |
       Let's use `grep` to find lines containing "root" in the `/etc/passwd` file.
       
-      `grep root /etc/passwd`
-      
-      Now let's use `ls -l` and pipe the output to `grep` to find lines with `d`
-      which represents directories
-      
-      `ls -l /etc/ | grep d`
+          grep root /etc/passwd
     verification: SKIP_CHECK
     exit_code: 0
 
-  - name: Creating your first file
-    description: Creating a file is simple using the touch command.
-    action: "run the command `touch my_first_file.txt`"
+  - name: Using grep ignoring case sensitivity
+    description: |
+      The `-i` option allows `grep` to ignore case when searching for patterns.
+      This is useful when you want to match text regardless of its case.
+    action: |
+      Use `grep` with the `-i` option to find lines containing "root" in the
+      `/etc/ssh/sshd_config` file, ignoring case.
+      
+          grep -i root /etc/ssh/sshd_config
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using grep inverting the match
+    description: |
+      The `-v` option inverts (reverse) the match, showing lines that do not match the
+      specified pattern. This is useful for filtering out unwanted lines.
+    action: |
+      Use `grep -v` to find lines in the `/etc/passwd` file that do not contain
+      the "nologin" shell.
+      
+          grep -v nologin /etc/passwd
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using grep with regular expressions
+    description: |
+      `grep` supports regular expressions, allowing for complex pattern matching.
+      
+      We will explore more regular expression features in later chapters, but for now,
+      let's explore some basic regex patterns with `grep`.
+    action: |;
+      Find lines in the `/etc/passwd` file that:
+        1. Contain a username starting with "a" followed by any characters.
+            grep "^a.*" /etc/passwd
+        2. Contain a username ending with "d" followed by any characters.
+            grep ".*d$" /etc/passwd
+        3. Contain a username with exactly three characters.
+            grep "^...$" /etc/passwd
+        4. Contain a username with "a" as the second character.
+            grep "^.a.*" /etc/passwd
+        5. Contain a username with "a" as the second-to-last character.
+            grep "^.*a.$" /etc/passwd
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using other common grep options
+    description: |
+      `grep` has many other useful options. Here are a few common ones:
+      
+      - `-c`: Count the number of matching lines.
+      - `-n`: Show line numbers with output lines.
+      - `-l`: List only the names of files with matching lines.
+    action: |
+     Explore their functionality.
+          grep -c root /etc/passwd
+          grep -n root /etc/passwd
+          grep -l root /etc/*
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using grep to parse command output
+    description: |
+      The command `grep` can be used to filter the output of other commands.
+
+      This is particularly useful for narrowing down results from commands that produce
+      large amounts of output or when you want to focus on specific information.
+      
+    action: |
+      We will filter the output of the free command to get only the total memory
+      information.
+
+          free -h | grep "Mem" | awk '{print $2}'
+
+      NOTE: The `awk` command is used here to extract the second column from the output,
+      which contains the total memory size. The `grep` command filters the output to
+      include only the line containing "Mem".
+
+      Let's also use `grep` to parse the output of the `df -h` command to find the
+      available disk space on the root filesystem.
+
+          df -h | grep "/$" | awk '{print $4}'
+
+      NOTE: The `awk` command is used here to extract the fourth column from the output,
+      which contains the available disk space on the root filesystem. The `grep` command
+      filters the output to include only the line containing the root filesystem (`/`), by
+      making use of the `/$` pattern, which matches the "/" character at the "$" end of the line.
+
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using grep with multiple files
+    description: |
+      `grep` can search through multiple files at once, which is useful for finding
+      patterns across different files or directories.
+    action: |
+      Use `grep` to search for the term "root" in all files in the `/etc` directory.
+
+          grep root /etc/*
+
+      This can also be done recursively to search through all files in the `/etc`
+      directory and its subdirectories.
+
+          grep release -r /etc/*
+
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Command line expansions - The full stop (`.`)
+    description: |
+      The full stop (`.`) is a special character in the command line that can be used
+      to refer to the current directory. It is often used in commands to specify the
+      current directory as a target for operations.
+
+      I like to call it "here".
+      
+      For example, you can use `.` with `ls` to list files in the current directory:
+          ls .
+
+      You can also use `.` with `cp` to copy files to the current directory:
+          cp /path/to/source/file.txt .
+      This command copies `file.txt` from the specified path to the current directory.
+    action: |
+      Make a copy of the `/etc/passwd` file to the current directory using the `.` character.
+      
+          cp /etc/passwd .
+
+      Repeat the copy operation, but time renaming the file to `my_passwd.txt`:
+      
+          cp /etc/passwd ./my_passwd.txt
+    verification: ls -l ./my_passwd.txt
+    exit_code: 0
+
+  - name: Command line expansions - The tilde (`~`)
+    description: |
+      The tilde (`~`) is a special character in the command line that represents the
+      home directory of the current user. It is often used to quickly navigate to the
+      home directory or to specify paths relative to the home directory.
+      For example, you can use `~` with `cd` to change to the home directory:
+          cd ~ 
+    action: |
+      Use the tilde (`~`) to copy the `/etc/motd` file to your home directory.
+      
+          cp /etc/motd ~/motd.txt
+
+      Now, let's create a new file in your home directory using the tilde (`~`) to
+      specify the path. Use the `touch` command to create a file named `my_first_file.txt`
+      in your home directory.
+      
+          touch ~/my_first_file.txt
     verification: ls -l ~/my_first_file.txt
+    exit_code: 0
+
+  - name: Command line expansions - The double dot (`..`)
+    description: |
+      The double dot (`..`) is a special character in the command line that represents
+      the parent directory of the current directory. It is often used to navigate up
+      one level in the directory hierarchy.
+      
+      For example, you can use `..` with `cd` to change to the parent directory:
+          cd ..
+
+      You can also use `..` with `ls` to list files in the parent directory:
+          ls ..
+    action: |
+      Starting from your home directory, create a new directory named `test_dir`
+      and then navigate into it.
+
+          mkdir ~/test_dir
+          cd ~/test_dir
+
+      Use the double dot (`..`) to copy the `/etc/resolv.conf` file to the home directory.
+      
+          cp /etc/resolv.conf ../resolv.conf
+
+      List the file in the parent directory, and the test_dir 
+
+        ls -l ../resolv.conf ../test_dir
+
+      Notice that the `resolv.conf` file is now in your home directory, and the `test_dir`
+      directory is still empty.
+      
+    verification: ls -l ../resolv.conf
+    exit_code: 0
+
+  - name: Wildcards - The asterisk (`*`)
+    description: |
+      The asterisk (`*`) is a wildcard character that matches zero or more characters.
+      
+    action: |
+      Use `*` with `ls` to list all files in the /etc directory:
+
+          ls * /etc
+
+      Use it to list only txt files:
+
+          ls *.txt /etc
+
+      Use it to list only files with the patter `conf` somewhere in the name:
+
+          ls *conf* /etc
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Wildcards - The question mark (`?`)
+    description: |
+      The question mark (`?`) is a wildcard character that matches exactly one character.
+      It is often used to match specific characters in filenames or patterns.
+    action: |
+      Use `?` with `ls` to list files and directories in the `/etc` directory 
+      that have exactly three characters in their names:
+
+          ls -ld /etc/???
+      
+      Use it to list files and directories in the /dev directory that have 
+      exactly two characters in their names:
+
+          ls -ld /dev/??
+
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Wildcards - The start (`^`) and end (`$`) anchors
+    description: |
+      The start (`^`) and end (`$`) anchors are used in regular expressions to match
+      the beginning and end of a line, respectively. They are often used to specify
+      patterns that must match the entire line.
+      
+      For example, `^abc` matches lines that start with "abc", and `xyz$` matches lines
+      that end with "xyz".
+    action: |
+      Use `^` to find lines in the `/etc/passwd` file that start with "root":
+
+          grep "^root" /etc/passwd
+
+      Use `$` to find lines in the `/etc/passwd` file that end with "nologin":
+
+          grep "nologin$" /etc/passwd
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Pattern matching - The square brackets (`[]`)
+    description: |
+      Square brackets (`[]`) are used in regular expressions to specify a character class,
+      which matches any single character within the brackets. This is useful for matching
+      specific sets of characters.
+      
+      For example, `[aeiou]` matches any vowel, and `[0-9]` matches any digit.
+    action: |
+      Use `[]` to find lines in the `/etc/passwd` file that contain a username with
+      a vowel as the second character:
+
+          grep "^.[aeiou]" /etc/passwd
+
+      Use `[]` to find lines in the output of the `df -h` command that contain a file 
+      system with two or more digits in the Use% column:
+
+          df -h | grep "[0-9][0-9]%"
+
+    verification: SKIP_CHECK
+    exit_code: 0
+    
+  - name: Pattern matching - The POSIX character classes
+    description: |
+      POSIX character classes are a set of predefined character classes that can be used
+      in regular expressions to match specific types of characters. They are often used
+      to simplify complex patterns.
+
+      Some common POSIX character classes include:
+      - `[[:alpha:]]`: Matches any alphabetic character (a-z, A-Z).
+      - `[[:digit:]]`: Matches any digit (0-9).
+      - `[[:alnum:]]`: Matches any alphanumeric character (a-z, A-Z, 0-9).
+      - `[[:space:]]`: Matches any whitespace character (space, tab, newline).
+      - `[[:punct:]]`: Matches any punctuation character.
+      - `[[:lower:]]`: Matches any lowercase letter (a-z).
+      - `[[:upper:]]`: Matches any uppercase letter (A-Z).
+      
+    action: |
+      Use POSIX character classes to find lines in the `/etc/passwd` file that contain
+      a username with at least one alphabetic character:
+
+          grep "[[:alpha:]]" /etc/passwd
+
+      Use POSIX character classes to find lines in the `/etc/passwd` file that contain
+      a username with at least one digit:
+
+          grep "[[:digit:]]" /etc/passwd
+
+      Use POSIX character classes to find lines in the `/etc/passwd` file that contain
+      a username with at least one uppercase letter:
+          
+          grep "[[:upper:]]" /etc/passwd
+
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Command line expansions - Creating files using ranges
+    description: |
+      The command line allows you to create files using ranges, which can be useful for
+      generating multiple files with similar names or patterns.
+      
+      For example, you can use `{}` to create multiple files with a common prefix:
+
+          touch file{1..5}.txt
+
+      This command creates five files named:
+      
+          `file1.txt`, `file2.txt`, `file3.txt`, `file4.txt`, and `file5.txt`.
+    action: |
+      Create a hundred files named `test`, with the 'txt' extension in your home directory
+      using the range expansion feature.
+      
+          touch ~/test{1..100}.txt
+
+      Verify that the files were created successfully.
+      
+          ls -l ~/test*.txt
+
+      Now, delete the files from 1 to 50 using the range expansion feature again.
+      
+          rm ~/test{1..50}.txt
+
+      Verify that the files were deleted successfully.
+      
+          ls -l ~/test*.txt
+
+      Finally, delete the remaining files using a wildcard pattern.
+      
+          rm ~/test*.txt
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding pipes
+    description: |
+      The pipe (`|`) is a special character in the command line that allows you to
+      connect the output of one command to the input of another command.
+      
+      This is useful for chaining commands together to perform complex operations on data.
+
+      For example, you can use `|` to filter the output of a command using `grep`:
+
+          ls -l | grep "txt"
+
+      This command lists all files in the current directory and then filters the output
+      to show only files with "txt" in their names.
+    action: |
+      Use `grep` to parse lines containing "nologin" in the `/etc/passwd` file.
+
+          grep nologin /etc/passwd
+
+      Now, let's narrow down the results by piping again to `grep` and filtering
+      lines that contain the "var" pattern.
+      
+          grep nologin /etc/passwd | grep var
+
+      Finally, pipe one more time to `wc -l` to count the number of lines:
+
+          grep nologin /etc/passwd | grep var | wc -l
+    verification: SKIP_CHECK
+    exit_code: 
+
+  - name: Understanding output redirection
+    description: |
+      Redirection allows you to control where the output of a command goes.
+      
+      You can redirect to a file overwriting or appending.
+      
+      Use `>` to redirect overwriting
+
+          ls -l > output1.txt
+
+          This command saves the output of `ls -l` to the `output.txt` file.
+
+      Use `>>` to redirect appending
+          ls -l >> output2.txt
+          free -h >> output2.txt
+
+          Both commands append their output to the `output2.txt` file.
+    action: |
+      Use `grep` to find "root" in the `/etc/passwd` file and redirect
+      the output to a file named `~/root_users.txt`.
+
+          grep root /etc/passwd > ~/root_users.txt
+
+      Verify the results stored in the file.
+
+          cat ~/root_users.txt
+
+      Now, let's append a new line to the `root_users.txt` file and then
+      include lines that contain "nologin" in the `/etc/passwd` file.
+
+          echo "" >> ~/root_users.txt
+          grep nologin /etc/passwd >> ~/root_users.txt
+      
+      Verify the updated contents of the `root_users.txt` file.
+
+          cat ~/root_users.txt
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding input redirection 
+    description: |
+      Input redirection allows you to provide input to a command from a file instead of
+      the keyboard. 
+
+      Use `<` to redirect input from a file:
+
+          sort < input.txt
+
+      This command sorts the contents of `input.txt` and displays the sorted output.
+    action: |
+      Let's extract only the usernames from the `/etc/passwd` to a file in 
+      your home directory.
+
+          cut -d: -f1 /etc/passwd > ~/mypasswd.txt
+      
+      Now, use input redirection to sort the contents of the `~/mypasswd.txt` file.
+
+          sort < ~/mypasswd.txt
+      
+      Combining input redirection with output redirection, you can save the sorted
+      output to a new file named `~/sorted_passwd.txt`.
+
+          sort < ~/mypasswd.txt > ~/sorted_passwd.txt
+
+      Verify the results stored in the file.
+
+          cat ~/sorted_passwd.txt
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding stdin, stdout, and stderr
+    description: |
+      In the command line, there are three standard streams:
+      
+      - (0) `stdin`: Standard input (usually the keyboard).
+      - (1) `stdout`: Standard output (usually the terminal).
+      - (2) `stderr`: Standard error (used for error messages).
+      
+      You can also redirect these streams to files or other commands.
+    action: |
+      Use `ls` to list files in a directory and redirect the output to a file.
+      
+          ls /etc > ~/etc_files.txt
+
+      Now, let's simulate an error by trying to list a non-existent directory
+      and redirect the error message to a file named `~/error_log.txt`.
+
+          ls /non_existent_directory 2> ~/error_log.txt
+      
+      Verify that the error message was saved in the `~/error_log.txt` file.
+
+          cat ~/error_log.txt
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Redirecting to the "/dev/null" device
+    description: |
+      The `/dev/null" device is a special file that discards all input.
+      You can think of it as "The trash" or "The Void"
+
+      It is commonly used to redirect errors when we want to ignore them 
+      or remove them from the resulting output
+    action: |
+      Try running a find command of txt files starting from the root directory
+
+          find / -name "*.txt" 
+
+      Notice, a lot of "permission denied" errors will appear, thats because 
+      we tried searching starting at the `/` directory and many of the directories
+      below can only be accessed by the 'root' user.
+
+      Let's ignore those errors to the trash to ignore them.
+
+          find / -name "*.txt" 2> /dev/null
+
+      Notice, we used `stderr` channel (2) to the /dev/null
+    verification: SKIP_CHECK
+    exit_code: 0
+    
+  - name: Understanding the `tee` command
+    description: |
+      The `tee` command reads standard input and writes it to both standard output
+      and one or more files. It's often used with a pipe to capture the output
+      of a command while also viewing it in the terminal.
+
+      - `-a`: appends to the file instead of overwriting it.
+    action: |
+      1. Run `ls -l` and pipe the output to `tee` to save it to a file.
+            ls -l | tee list_from_tee.txt
+
+      2. Verify that the file was created
+            ls -l list_from_tee.txt
+
+      2. Now, check the contents of the `file_list.txt` file.
+            cat list_from_tee.txt
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding the `cat` command
+    description: |
+      The `cat` command (concatenate) is used to display the contents of a file.
+      It's one of the simplest and most-used commands for printing files on screen.
+    action: |
+      1. Create a simple text file:
+            echo "Hello, World!" > hello.txt
+
+      2. Now, use `cat` to display its content:
+            cat hello.txt
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding the `sort` command
+    description: |
+      The `sort` command sorts lines of text
+
+      Some common options:
+
+      - `-r`: Reverse the sort order.
+      - `-n`: Sort numerically.
+    action: |
+      1. Create a list of unsorted numbers:
+            echo -e "5\n2\n8\n1\n3" > numbers.txt
+
+      2. Print the list as is:
+            cat numbers.txt
+
+      3. Sort the numbers numerically:
+            sort -n numbers.txt
+
+      4. Sort the numbers in reverse order:
+            sort -rn numbers.txt
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding the `uniq` command
+    description: |
+      The `uniq` command filters out duplicate lines from a file or standard input.
+      It requires that the duplicate lines be adjacent to each other, so it's
+      often used with `sort`.
+    action: |
+      1. Create a list with duplicate lines:
+            echo -e "apple\nbanana\napple\ncherry" > fruits.txt
+
+      2. Print the list as is:
+            cat fruits.txt
+
+      2. Sort the file and then remove duplicates:
+            sort fruits.txt | uniq
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding the `wc` command
+    description: |
+      The `wc` command (word count) prints the number of lines, words, and
+      bytes in a file. It is a simple tool for getting basic statistics
+      about a file's content.
+
+      Some common options:
+
+      - `-l`: Count lines.
+      - `-w`: Count words.
+      - `-c`: Count bytes.
+    action: |
+      1. Create a simple text file:
+            echo "This is a test file with some words." > test.txt
+
+      2. Run `wc` to count the lines, words, and bytes:
+            wc -l test.txt
+            wc -w test.txt
+            wc -c test.txt
+      
+      3. You can also do them all at once:
+            wc test.txt
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding the `cut` command
+    description: |
+      The `cut` command is used to select and display specific fields from
+      each line of a file. It's great for extracting data from structured
+      text, like a CSV file.
+
+      - `-f`: Specify the field to cut.
+      - `-d`: Specify the delimiter.
+    action: |
+      1. Let's create a temporary file that is formatted as a CSV:
+            echo "name,age,city" > users.csv
+            echo "john,30,new york" >> users.csv
+            echo "jane,25,london" >> users.csv
+
+      2. Print the file as is:
+            cat users.csv
+
+      3. Now, use `cut` to display only the `name` field:
+            cut -d',' -f1 users.csv
+
+         Notice, we use the `,` comma as delimitation character
+         and requested the first field only.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: The `awk` language - Print
+    description: |
+      `awk` is a powerful text processing tool. At its most basic, 
+      can be used to print specific fields from a line, much like `cut`,
+      but with more flexibility.
+
+      `awk '{print $1, $3}'` prints the first and third fields.
+    action: |
+      1. Let's extract the `%Use` column from the `df -h` command:
+            df -h | awk '{print $5}'
+
+      2. Now extract the First and the Fifth columns:
+            df -h | awk '{print $1, $5}'
+      
+      By default `awk` uses the space as Field separator but we can
+      change this using the `-F` option.
+
+      3. Using the `users.csv` file from the previous example:
+         use `awk` to print the first field:
+            awk -F',' '{print $1}' users.csv
+
+         Notice, we use the `,` comma as delimitation character
+
+      4. Use `awk` to print only the first and last columns:
+            awk -F',' '{print $1, $3}' users.csv
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: The `awk` language - Arithmetic
+    description: |
+      `awk` can perform simple arithmetic operations on numeric fields.
+      This is useful for calculating sums, averages, or other metrics.
+    action: |
+      1. Create a file with a list of numbers:
+            echo -e "10\n20\n30\n40" > numbers.txt
+
+      2. Print the list as is:
+            cat numbers.txt
+
+      3. Use `awk` to calculate the sum of the numbers:
+            awk '{sum += $1} END {print sum}' numbers.txt
+         
+         Notice, the operation occurs within the quotes and receives the
+         file as input. The operation is divided in two parts:
+            {sum += $1}       Loops thru the values and sums them up
+            END {print sum}   At the END of the loop it prints the sum.
+
+        Other available operations are:
+          - sum: To perform addition
+          - sub: To perform subtraction
+          - mul: To perform multiplication
+          - div: To perform division
+          - mod: To perform modulus (remainder)          
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: The `awk` language - Concatenation
+    description: |
+      In `awk`, string concatenation is done by placing two strings next to
+      each other.
+    action: |
+      1. Create a file with names and departments:
+            echo -e "john dev\njane ops" > employees.txt
+
+      2. Print the list as is:
+            cat employees.txt
+
+      2. Use `awk` to print a combined string for each employee:
+            awk '{print "Employee: " $1 " is in department: " $2}' employees.txt
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: The `awk` language - Built-in variables
+    description: |
+      `awk` has several built-in variables.
+      
+      - `NR`: The number of records (lines).
+      - `NF`: The number of fields in the current record or line.
+      - `$0`: The entire line
+    action: |
+      1. Create a multi-line file with a few fields:
+            echo -e "1 2\n3 4 5\n6 7" > data2.txt
+
+      2. Print the file as is:
+            cat data2.txt
+
+      3. Use `awk` to print the line number and number of fields for each line:
+            awk '{print "Line " NR ": " NF " fields"}' data2.txt
+
+      4. From the `free -h` extract the `Mem` line using grep and print the 
+         last field formatted as "available memory: <value>"
+            free -h | grep Mem | awk '{print "available memory: " $2}'
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: The `awk` language - printf
+    description: |
+      `printf` is a powerful function in `awk` for formatting output.
+    action: |
+      Let's use `printf` to create a formatted table from the `/etc/passwd` file 
+      only of users that can login, printing only the username, and home directory.
+    
+          grep -v nologin /etc/passwd | awk -F':' '{printf "%-15s %-15s\n", $1, $6}'
+
+      Notice: 
+        - Used a reversed grep of "nologin" to get users who can login.
+        - Used the ":" character as field separator
+        - Taking fields $1 and $6 (username and home directory)
+        - Used printf with the format `%-15s %-15s\n`, meaning:
+              %   placement for value
+              -   Left-align the output within the field
+              15  Field width is 15 characters
+              s   Print as a string
+              \n  Newline character
+      
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: The `sed` language - Replacing
+    description: |
+      `sed` (stream editor) is a text-editing utility that performs
+      transformations on text. Its most common use is for
+      performing find-and-replace operations.
+
+          sed 's/old_string/new_string/g'
+
+      where:
+        s calls the substitute function
+        g calls the global function 
+    action: |
+      1. Create a simple text file:
+            echo "The fox is fast." > fox.txt
+
+      2. Use `sed` to replace "fox" with "rabbit":
+            sed 's/fox/rabbit/' fox.txt
+
+      3. Extract the login users from the `/etc/passwd` file:
+            grep -v nologin /etc/passwd > login_users.txt
+      
+      4. Use sed to replace the ":" character with a blank space
+            sed 's/:/ /g' login_users.txt
+
+      5. Do it again without the `g` flag:
+            sed 's/:/ /' login_users.txt
+         Notice, only the first occurrence of each line was affected
+         if the global flag was not used.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: The `sed` language - In file replacing
+    description: |
+      By default, `sed` prints its output to the terminal, leaving the original
+      file unchanged. To edit a file in place, you must use the `-i` option.
+    action: |
+      1. Create a simple text file:
+            echo "The quick brown fox." > sed_file.txt
+
+      2. Now, use `sed` to replace "fox" with "bear" and save the change
+         to the original file:
+            sed -i 's/fox/bear/g' sed_file.txt
+      
+      3. Verify the change by viewing the file's content:
+            cat sed_file.txt
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: The `sed` language - Deleting
+    description: |
+      You can use `sed` to delete lines from a file.
+      The `d` function is used to delete lines.
+    action: |
+      1. Create a file with multiple lines:
+            echo -e "line1\nline2\nline3" > sed_delete.txt
+
+      2. Print the file as is:
+            cat sed_delete.txt
+
+      3. Use `sed` to delete the second line:
+            sed '2d' sed_delete.txt
+      
+      4. Do it again but in place:
+            sed -i '2d' sed_delete.txt
+      
+      5. Verify the change by viewing the file's content:
+            cat sed_delete.txt
+    verification: SKIP_CHECK
     exit_code: 0
 
 ...

@@ -7,7 +7,202 @@
   #   exit_code: 
 ---
 title: Chapter 8
-section: 
+section: Software Management
 tasks:
 
+  - name: Installing a package using the `rpm` command
+    description: |
+      The `rpm` (Red Hat Package Manager) command is a low-level utility
+      for managing `.rpm` packages on Red Hat-based systems. 
+
+    action: |
+      Let's use `rpm` to install a package and then verify it.
+
+      1. Download this "ChaTTY" package from its repository in GitHub.
+          1.1 Navigate to: https://github.com/jmedinar/chatty/tree/main/RPMS
+          1.2 Right click the latest version of the package and select "Save link as..."
+          1.3 Save the file to your home directory.
+
+      2. Install the package using the `rpm` command:
+            sudo rpm -i --replacepkgs chatty-*.noarch.rpm
+
+      3. Verify the installation by querying for the package:
+         `rpm -q chatty`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Examining rpm packages
+    description: |
+      The `rpm` command provides several options to examine
+      the contents of installed packages.
+
+    action: |
+      1. List all installed packages:
+            rpm -qa
+
+      2. Query a specific package:
+             rpm -q chatty
+
+      3. List files in a package:
+             rpm -ql chatty
+
+      4. Display detailed information about a package:
+             rpm -qi chatty
+
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Installing a package using the `dnf` command
+    description: |
+      The `dnf` command is a higher-level package manager that
+      simplifies package management tasks on Red Hat-based systems.
+
+    action: |
+      Let's use `dnf` to install a package and then verify it.
+
+      1. Install the "MariaDB" package using `dnf`:
+            sudo dnf install -y mariadb-server
+
+          NOTICE: The `-y` option automatically answers "yes" to prompts.
+
+      2. Verify the installation by querying for the package:
+            dnf list installed mariadb-server
+
+      4. Test the MariaDB package 
+            mysql -V
+
+    verification: mysql -V &>/dev/null
+    exit_code: 0
+
+  - name: Installing groups using the `dnf` command
+    description: |
+      The `dnf` command can also install groups of packages,
+      which is useful for setting up environments with multiple
+      related packages.
+
+    action: |
+      1. Install the "Development Tools" group:
+            sudo dnf group install -y development-tools
+
+      2. Verify the installation by listing installed groups:
+            dnf group list | grep yes
+
+    verification: dnf group list 2>/dev/null | grep "yes" | grep -q development-tools 2>/dev/null
+    exit_code: 0
+
+  - name: Working with the dnf history
+    description: |
+      The `dnf history` command allows you to view and manage
+      the history of package transactions on your system.
+
+    action: |
+      1. Let's perform three installations to demonstrate the history
+
+            sudo dnf install -y wireshark
+            sudo dnf install -y nmap
+            sudo dnf install -y nmon
+
+      2. View the history of transactions in reverse order:
+            dnf history list --reverse
+
+      3. View details of a specific transaction 
+         (replace `<transaction_id>` with an actual ID)
+            dnf history info <transaction_id>
+
+      4. Undo the wireshark related transaction
+         (replace `<transaction_id>` with an actual ID)
+            sudo dnf history undo -y <transaction_id>
+
+      5. View the history again to confirm the undo
+            dnf history list --reverse
+
+      6. Redo the transaction to reinstall wireshark
+         (replace `<transaction_id>` with an actual ID)
+            sudo dnf history redo -y <transaction_id>
+
+    verification: dnf history list --reverse | grep -q redo
+    exit_code: 0
+
+  - name: Searching for packages using the `dnf` command
+    description: |
+      The `dnf` command provides options to search for packages
+      based on names or descriptions.
+
+    action: |
+      1. Search for a package by name:
+            dnf search ettercap
+            dnf search wireshark
+
+      2. Search for a package by description:
+            dnf search "sniffer"
+            dnf search "traffic analyzer"
+
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Getting more information about a package using the `dnf` command
+    description: |
+      The `dnf info` command provides detailed information about
+      a specific package, including its version, release, and description.
+
+    action: |
+      1. Get detailed information about a package:
+            dnf info wireshark
+
+      2. Get detailed information about a group of packages:
+            dnf group info development-tools
+
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Removing a package using the `dnf` command
+    description: |
+      The `dnf remove` command allows you to uninstall packages
+      from your system.
+    action: |
+      1. Remove the "wireshark" package:
+            sudo dnf remove -y wireshark
+      2. Verify the removal by checking if the package is still installed:
+            dnf list installed wireshark
+    verification: ! rpm -q wireshark &>/dev/null
+    exit_code: 0
+
+  - name: Managing repositories using the `dnf` command
+    description: |
+      The `dnf` command allows you to manage software repositories,
+      which are sources for packages.
+
+    action: |
+      1. List all the repositories:
+         dnf repolist --all
+
+      2. Add a new repository (example: EPEL):
+         sudo dnf install -y epel-release
+
+      3. Add a custom repository: (this will not work as it requires a valid URL)
+         sudo dnf config-manager addrepo \
+           --from-repofile=https://download.example.com/repo/example.repo
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Upgrading packages using the `dnf` command
+    description: |
+      The `dnf upgrade` command allows you to update installed packages
+      to their latest versions.
+
+    action: |
+      1. Upgrade a single package:
+            sudo dnf upgrade -y wireshark
+      
+      2. Upgrade only packages with security updates:
+            sudo dnf upgrade --security
+      
+      3.  Upgrade all installed packages:
+            sudo dnf upgrade -y
+
+      4. Verify that the packages have been upgraded:
+            dnf list updates
+
+    verification: SKIP_CHECK
+    exit_code: 0
 ...

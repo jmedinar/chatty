@@ -10,4 +10,355 @@ title: Chapter 6
 section: 
 tasks:
 
+  - name: Learning the vim editor (command mode)
+    description: |
+      The vim editor is a powerful text editor available on most Unix systems.
+      it uses different modes:
+
+        - Command mode: for navigation and commands
+        - Insert mode: for text input
+        - Visual mode: for selecting text
+
+      Switching between modes is done using key combinations:
+        - `Esc`       Exit all modes
+        - `Esc + :`   Enter command mode
+        - `Esc + i`   Enter insert mode
+        - `Esc + v`   Enter visual mode
+    action: |
+      To use `command mode` in vim, follow these steps:
+        1. Open a file with vim: `vim filename`
+        2. Press `Esc` to ensure you exit all modes
+        3. Press `:` to enter command mode
+
+      Use the <TAB> key to navigate through the commands.
+      Use your arrow keys to move through the commands.
+
+      Every command has a short version, like:
+        - `:w` for write (save)
+        - `:q` for quit
+        - `:wq` for write and quit
+        - `:q!` for quit without saving      
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Learning the vim editor (insert mode)
+    description: |
+      In `insert mode`, you can type text into the file.
+      To enter insert mode, press `i` while in no mode.
+    action: |
+      To use `insert mode` in vim, follow these steps:
+        1. Open a file with vim: `vim learning_vim.txt`
+        2. Press `Esc` to ensure you exit all modes
+        3. Press `i` to enter insert mode
+        4. Type the text
+            "This is a test file for learning vim."
+        5. Save your changes by pressing `Esc` to exit insert mode, 
+           then type `:wq` to write and quit and press `Enter`
+    verification: grep -q "learning vim" learning_vim.txt
+    exit_code: 0
+
+  - name: Learning the vim editor (visual mode)
+    description: |
+      In `visual mode`, you can select text for copying or deleting.
+
+      There are different types of visual modes:
+        - Character-wise visual mode (default, activated with `v`)
+        - Line-wise visual mode (activated with `V`)
+        - Block-wise visual mode (activated with `Ctrl + v`)
+      
+    action: |
+        1. Make a copy of the /etc/passwd file:
+            cp /etc/passwd vim_test.txt
+        2. Open the copied file with vim: 
+            vim vim_test.txt
+        3. Press `Esc` to ensure you exit all modes
+        4. Press `v` to enter character-wise visual mode
+        5. Use the arrow keys to select the text you want to copy
+        6. Press `y` to yank (copy) the selected text
+        7. Move the cursor to the desired location
+        8. Press `p` to paste the copied text
+        9. Press `Esc` to exit visual mode
+        10. Save your changes by using the shortcut `Ctrl+zz`
+    verification: ls -l vim_test.txt 2>/dev/null && grep -q "root" vim_test.txt
+    exit_code: 0
+
+  - name: Learning the vim editor (cut/paste)
+    description: |
+      In `visual mode`, you can also cut text instead of copying it.
+      To cut text, select it in visual mode and press `x`.
+      To paste, move the cursor to the desired location and press `p`.
+    action: |
+      1. Open the vim_test.txt file with vim: 
+          vim vim_test.txt
+      2. Press `Esc` to ensure you exit all modes
+      3. Press `v` to enter character-wise visual mode
+      4. Use the arrow keys to select the text you want to cut
+      5. Press `x` to cut the selected text
+      6. Move the cursor to the desired location
+      7. Press `p` to paste the cut text
+      8. Save your changes
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Learning the vim editor (search and replace)
+    description: |
+      Vim provides powerful search and replace functionality.
+      You can search for text using `/` followed by the search term.
+      To replace text, use the `:s` (substitute) command.
+      For example, to replace "old" with "new":
+        :s/old/new/g    replaces in the current line
+        :%s/old/new/g   replaces in the entire file.
+    action: |
+      1. Open the vim_test.txt file with vim:
+          vim vim_test.txt
+      2. Press `Esc` to ensure you exit all modes
+      3. Press `/` to enter search mode
+      4. Type the text you want to search for, e.g., `root`
+      5. Press `Enter` to search for the text
+      6. Use `n` to go to the next occurrence and `N` to go to the previous occurrence
+      6. To replace text, type `:s/root/admin/g` and press `Enter`
+      7. To replace text with confirmation, type `:s/root/admin/gc` and press `Enter`
+         - Press `y` to confirm the replacement or `n` to skip it
+         - Press `a` to replace all occurrences without confirmation
+      7. To replace text in the entire file, type `:%s/root/admin/g` and press `Enter`
+      8. Save your changes by using the shortcut `Ctrl+zz`
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Learning the vim editor (undo/redo)
+    description: |
+      Vim allows you to undo and redo changes.
+
+      To undo a change, press `u` in normal mode.
+      To redo a change, press `Ctrl + r`.
+
+      You can also use `:undo` and `:redo` commands.
+    action: |
+      1. Open the vim_test.txt file with vim:
+          vim vim_test.txt
+      2. Make some changes to the file
+      3. Press `u` to undo the last change
+      4. Press `Ctrl + r` to redo the last undone change
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Learning the vim editor (deleting)
+    description: |
+      In vim, you can delete text using the `d` command.
+      To delete a line, use `dd`
+      To delete a word, use `dw`
+      To delete from the cursor to the end of the line, use `d$`
+      To delete from the cursor to the beginning of the line, use `d^`
+      To delete a character, use `x`
+    action: |
+      1. Open the vim_test.txt file with vim:
+          vim vim_test.txt
+      2. Move the cursor to the line you want to delete
+      3. Press `dd` to delete the entire line
+      4. Move the cursor to a word you want to delete
+      5. Press `dw` to delete the word
+      6. Press `d$` to delete from the cursor to the end of the line
+      7. Press `d^` to delete from the cursor to the beginning of the line
+    verification: ls -l vim_test.txt 2>/dev/null && grep -q "admin" vim_test.txt
+    exit_code: 0
+
+  - name: Shell Scripting - Shebang
+    description: |
+      A shebang is a special line at the beginning of a script file that 
+      tells the system which interpreter to use to execute the script.
+
+      It starts with `#!` followed by the path to the interpreter.
+
+      For example, 
+      
+        `#!/bin/bash` indicates that the script should be using the Bash shell.
+    action: |
+      1. Create a new script file:
+            vim ~/script.sh
+      2. Add the shebang line at the top:
+            #!/bin/bash
+      3. Add a simple command
+            ls -l
+      4. Save and exit vim
+    verification: grep -q "bash" ~/script.sh
+    exit_code: 0
+
+  - name: Shell Scripting - Comments
+    description: |
+      Comments in shell scripts start with `#` and are ignored by the interpreter.
+      They are used to add explanations or notes within the script.
+      For example:
+        # This is a comment
+    action: |
+      1. Open the ~/script.sh file in vim:
+            vim ~/script.sh
+      2. Add a comment line after the shebang:
+          # Author: Your Name
+          # Date: Today's Date
+          # Description: This script does something useful
+      3. Save and exit vim
+    verification: grep -qi "^# Author" ~/script.sh
+    exit_code: 0
+
+  - name: Shell Scripting - Running a script
+    description: |
+      To run a shell script, you need to make the file executable.
+      Then you can execute it by specifying the path to the script.
+
+      You can specify the path as: 
+        `./script.sh` if the script is in the current directory
+        `/path/to/script.sh` if the script is in a different directory
+        `bash script.sh` to run it with the Bash shell from anywhere
+        `script.sh` if the script location is in your PATH
+    action: |
+      1. Make the ~/script.sh file executable:
+         chmod +x ~/script.sh
+      2. Run the script:
+         ~/script.sh
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Shell Scripting - Variables
+    description: |
+      Variables in shell scripts are used to store data.
+      You can create a variable by assigning a value to it without spaces.
+      
+          my_variable="Hello, World!"
+
+      To access the value stored, use `$` before the variable name:
+
+          echo $my_variable
+      
+    action: |
+      1. Add a variable assignment to the ~/script.sh file:
+         
+            my_variable="Hello, World!"
+
+      2. Add a command to print the variable:
+         
+            echo $my_variable
+
+      4. Save and exit vim
+      5. Run the script:
+
+            ~/script.sh
+    verification: ~/script.sh | grep -q "Hello, World!"
+    exit_code: 0
+
+  - name: Shell Scripting - Quoting
+    description: |
+      Quoting is used to handle special characters in shell scripts.
+
+      There are two types of quotes:
+
+        - Single quotes ( '' ): preserve the literal value of each character
+        - Double quotes ( "" ): allow variable expansion and command substitution
+
+      For example:
+        echo 'This is a single-quoted string'
+        echo "This is a double-quoted string with a variable: $my_variable"
+    action: |
+      1. Add the following examples of quoting to the ~/script.sh file:
+
+            echo 'This is a single-quoted string'`
+            echo "This is a double-quoted string with a variable: $my_variable"
+
+      3. Save, exit and run the script:
+
+            ~/script.sh
+    verification: grep -q "single-quoted" ~/script.sh && grep -q "double-quoted" script.sh
+    exit_code: 0
+
+  - name: Shell Scripting - Command Substitution
+    description: |
+      Command substitution executes a command in a subshell and returns its output
+      to the original shell, replacing the command with its output.
+
+      You can use backticks (``) or the `$(...)` syntax
+
+      For example:
+
+          current_date=`date`
+          current_date=$(date)
+
+      Both commands will store the current date in the `current_date` variable.
+    action: |
+      1. Add a command substitution example to the ~/script.sh file:
+            current_date=$(date)
+            echo "Current date and time: $current_date"
+      3. Save, exit and run the script:
+            ~/script.sh
+    verification: grep -q "Current date" ~/script.sh
+    exit_code: 0
+
+  - name: Shell Scripting - Exit Codes
+    description: |
+      Exit codes are used to indicate the success or failure of a command or script.
+      By convention, an exit code of `0` indicates success, while any non-zero an error.
+      You can use the `exit` command to specify an exit code in your script.
+
+            exit 0   # Success            or            exit 1   # Error
+      
+      Check the exit code of the last executed command using the special variable `$?`.
+    action: |
+      1. Add the following exit code example to the ~/script.sh file, to verify if the
+         execution of the last command was successful:
+            ls /nonexistent_file
+            if [ $? -eq 0 ]; then
+                echo "Command succeeded"
+            else
+                echo "Command failed"
+            fi
+      2. Add an exit code example to the end of ~/script.sh file:
+            exit 0
+      2. Save, exit and run the script:
+            ~/script.sh
+      3. Check the exit code of the last command:
+            echo $?
+    verification: grep -q "Command failed" ~/script.sh && grep -q "exit 0" ~/script.sh
+    exit_code: 0
+
+  - name: Shell Scripting - Line Arguments and positional parameters
+    description: |
+      Line arguments are used to pass values to a script when it is executed.
+      You can access these arguments using positional parameters `$1`, `$2`, etc.
+      For example, if you run a script with 
+      
+          ~/script.sh arg1 arg2
+          
+      You can access `arg1` with `$1` and `arg2` with `$2`
+    action: |
+      1. Add code to print the first two arguments to the ~/script.sh file:
+            echo "First argument: $1"
+            echo "Second argument: $2"
+            echo "Number of arguments: $#"
+            echo "All arguments: $@"
+            echo "last argument: ${!#}"
+      3. Save, exit and run the script with arguments:
+            ~/script.sh taco pizza pasta
+      4. Check the output to verify the arguments were printed correctly
+    verification: grep -q taco ~/script.sh && grep -q pizza ~/script.sh
+    exit_code: 0
+
+  - name: Shell Scripting - Mathematical Operations
+    description: |
+      You can perform mathematical operations in shell scripts using the 
+      `expr` command or the `$((...))` syntax.
+
+          result=$(expr 5 + 3)
+          result=$((5 + 3))
+
+      Both commands will store the result of the addition in the `result` variable.
+    action: |
+      1. Add a mathematical operation example to the ~/script.sh file:
+          (be sure to do it before the "exit 0" line added in the previous task)
+
+              result=$((5 + 3))
+              echo "Result of addition: $result"
+
+      3. Save, exit and run the script:
+            ~/script.sh
+    verification: grep -q "addition" ~/script.sh
+    exit_code: 0
+
 ...

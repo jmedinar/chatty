@@ -15,17 +15,23 @@ tasks:
       The shell prompt is the terminal window’s title bar that, 
       by default, will have the following format:
 
-      [ username@system_hostname  working_directory]$
-    action: NEXT
-    verification: SKIP_CHECK
-    exit_code: 0
+      [ username@hostname working_directory]$
+    action: |
+      1. Open a terminal window and observe the shell prompt.
+          
+      2. Switch to the root user by running the command:
+            sudo -i
 
-  - name: Administrator vs Regular User
-    description: |
-      The shell prompt ends with the symbol:
-        - $ when running as a regular user
-        - # when running as an administrator
-    action: NEXT
+      3. Observe the shell prompt again.
+
+      4. Type `exit` to return to your regular user shell prompt.
+
+      5. What differences can you see between the two prompts?
+         - The username change when switching users.
+         - The working directory may also Change
+         - The prompt symbol changes from 
+            `$` when running as a regular user 
+            `#` when running as an administrator.
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -34,25 +40,38 @@ tasks:
       The shell always expects a command FIRST
       or will generate an error because the order
       given won't be recognized by the shell. 
-    action: "run some gibberish command. e.g. asdagdghjn"
+    action: |
+      run some gibberish command. e.g. asdagdghjn
     verification: SKIP_CHECK
     exit_code: 0
 
   - name: Running commands correctly
     description: |
-      Linux is case sensitive
-      What you type in the terminal has to be exact!
+      Linux is case sensitive, what you type has to be exact!
     action: |
-      Run the `whoami` command, it will print your username
-      Run the `Who am I` command, it will return an error 
+      1. Run the `whoami` command to see your current user.
+      2. Run the `Who am I` command, it will return an error.
+      3. Run the `LS` command, it will return an error.
+      4. Run the `ls` command to list your files.
     verification: SKIP_CHECK
     exit_code: 0
 
   - name: Running multiple commands
     description: |
-      If you want to type more than one command on a line, 
+      If you want to type more than one command on a single line, 
       you can use the semicolon (;) as a command separator.
-    action: Run `whoami; date`
+    action: |
+      Run the following command to list your files 
+      and print the current date:
+          ls; date
+
+      You can also use the `&&` operator to run a second 
+      command only if the first one succeeds:
+          ls && echo "Good job, files listed successfully"
+
+      Or use the `||` operator to run a second command \
+      only if the first one fails:
+          LS || echo "Seriously? Remember Linux is case sensitive!"
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -98,22 +117,22 @@ tasks:
       To see all the format options use the `date --help` command
     action: |
       Print the date in the default format with the following command:
-        $ date
+        date
 
       Print the date in short format
-        $ date +%D
+        date +%D
 
       Print only the year
-        $ date +%Y
+        date +%Y
 
       Print only the month
-        $ date +%B
+        date +%B
 
       Print only the day of the week
-        $ date +%A
+        date +%A
 
       Convert seconds since the Epoch (1970-01-01 UTC) to a date
-        $ date --date='@2147483647'
+        date --date='@2147483647'
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -122,8 +141,8 @@ tasks:
       All the commands come with short and long help.
       To see the short help, add the `--help` option to the command.
 
-        e.g. `ls --help`
-        e.g. `find --help`
+        ls --help
+        find --help
 
       The first line presents the `Usage` format of the command.
 
@@ -142,7 +161,8 @@ tasks:
         "The ls command supports multiple optional options and arguments."
     action: |
       Run the `ls --help | head -1` command to print only the first line of the help
-      Run the `find --help | head -1`
+      
+            find --help | head -1
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -251,7 +271,9 @@ tasks:
     action: |
       Let's use TAB completion to long-list the `.bashrc` file in your home directory.
 
-      First, navigate to the root directory: `cd /`
+      First, navigate to the root directory: 
+      
+          cd /
 
       Then, use TAB completion to build the path:
       1. Type `ls -l h` and press `TAB`. It should complete to `/home/`.
@@ -288,7 +310,7 @@ tasks:
           - /etc/motd
 
       Run the command:
-        $ head -3 /etc/passwd \
+        head -3 /etc/passwd \
               /etc/group \
               /etc/hosts \
               /etc/profile \
@@ -301,7 +323,7 @@ tasks:
       The shell stores every single command executed in a file called 
       `~/.bash_history` that we can print using the `history` command.
     action: |
-      Run `history` command
+      history
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -312,7 +334,7 @@ tasks:
     action: |
       Select a command from your history, for instance `27` and run it.
 
-        $ !27
+        !27
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -367,7 +389,7 @@ tasks:
       Let's say we want to long-list a file and then check its size.
 
       Run the command:
-        $ ls -l /etc/passwd
+        ls -l /etc/passwd
         
       Now, instead of typing the full `du -h /etc/passwd` use the shortcut:
 
@@ -382,11 +404,11 @@ tasks:
 
       In both commands you can specify the number of lines to print.
     action: |
-      Run `head /etc/passwd`
-      Run `tail /etc/passwd`
-      Run `head -5 /etc/passwd`
-      Run `tail -5 /etc/passwd`
-      Run `head /etc/passwd | tail -2`
+      head /etc/passwd
+      tail /etc/passwd
+      head -5 /etc/passwd
+      tail -5 /etc/passwd
+      head /etc/passwd | tail -2
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -400,13 +422,13 @@ tasks:
       Let's use the double bang shortcut with some examples.
 
       1. First, print the first ten lines of a file:
-         `head /etc/passwd`
+         head /etc/passwd
 
       2. Now, repeat the command but only print the first three lines:
-         `!! -n 3`
+         !! -n 3
 
       3. Finally, use the shortcut to run the previous command with `sudo`:
-         `sudo !!`
+         sudo !!
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -421,12 +443,12 @@ tasks:
       This is a quick way to correct a typo in the last command you ran.
     action: |
       Let's run a command with a deliberate typo
-        `ls -l /ect/passwd`
+        ls -l /ect/passwd
 
       You'll get a "No such file or directory" error.
 
       Now, run the command again and fix the typo using the shortcut:
-        `^ect^etc`
+        ^ect^etc
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -440,10 +462,10 @@ tasks:
       
       In your terminal, run each of the following:
 
-      `type ls`
-      `type date`
-      `type passwd`
-      `type pwd`
+      type ls
+      type date
+      type passwd
+      type pwd
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -455,8 +477,8 @@ tasks:
     action: |
       Use `which` to find the location of a command. For example, run:
       
-      `which ls`
-      `which date`
+      which ls
+      which date
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -468,8 +490,8 @@ tasks:
     action: |
       Use `whatis` to get a quick description of a command. For example, run:
       
-      `whatis ls`
-      `whatis which`
+      whatis ls
+      whatis which
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -482,7 +504,7 @@ tasks:
       Run the `apropos` command to find commands related to a keyword.
       For example, to find commands that manage files, run:
       
-      `apropos file`
+      apropos file
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -495,11 +517,11 @@ tasks:
       For shell built-ins like `cd` or `history`, the `help` command is
       used instead of `--help`.
     action: |
-      Run the following examples to see the different help outputs:
+      See the different help outputs:
 
-      `ls --help`
+      ls --help
 
-      `help cd`
+      help cd
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -510,9 +532,7 @@ tasks:
       manual page, which includes its syntax, a detailed description,
       options, and examples.
     action: |
-      Run the `man` command with `free` as an argument to view its full manual page.
-      
-      `man free`
+      man free
 
       When you are done reading, press `q` to return to your terminal.
     verification: SKIP_CHECK
@@ -530,9 +550,7 @@ tasks:
       - `n`: Jump to the next search result.
       - `q`: Quit the manual page viewer.
     action: |
-      Run `man find` and practice using the navigation commands listed above.
-      
-      `man find`
+      man find
 
       When you are done, press `q` to return to your terminal.
     verification: SKIP_CHECK
@@ -548,11 +566,9 @@ tasks:
       and a file format). You can specify a section number to view a specific page,
       such as `man 5 passwd` for the file format versus `man 1 passwd` for the command.
     action: |
-      Run the following commands to see these features in action:
-      
-      `man -k passwd`
-      `man 1 passwd`
-      `man 5 passwd`
+      man -k passwd
+      man 1 passwd
+      man 5 passwd
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -568,9 +584,7 @@ tasks:
       Let's create a temporary alias in our current shell session 
       that will count the txt files in our current location
       
-      Run:
-
-      `alias txtcount='ls -l *.txt | wc -l'`
+      alias txtcount='ls -l *.txt | wc -l'
 
       Now, run `txtcount` to see your new command in action.
     verification: SKIP_CHECK
@@ -606,10 +620,10 @@ tasks:
       Let's install the `tree` package and then use it to visualize a directory.
 
       1. Install the `tree` package:
-         `sudo dnf install -y tree`
+         sudo dnf install -y tree
 
       2. Now, run `tree` on your home directory to see your files:
-         `tree -L 1 ~`
+         tree -L 1 ~
 
          Notice: we limited the output to just 1 level of depth (-L 1) 
                  for simplification
@@ -625,18 +639,18 @@ tasks:
       Let's practice navigating between a few directories.
 
       1. Change to the `/etc` directory:
-         `cd /etc`
+         cd /etc
       2. Change to the `/home` directory:
-         `cd /home`
+         cd /home
       3. Change to the `/var/log` directory:
-         `cd /var/log`
+         cd /var/log
       4. Now go up one directory level:
-         `cd ..`
+         cd ..
       5. Now jump back and fort between the current and the last visited directory
-         `cd -`
+         cd -
          (Do it multiple times!)
       6. Finally, return to your home directory:
-         `cd`
+         cd
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -652,12 +666,12 @@ tasks:
       Let's practice using both path types.
       
       1. Ensure you are in your home directory:
-        `cd`
+        cd
       2. Run these commands and observe the results:
         - Use an **absolute path** to view the contents of the `Downloads` directory:
-            `ls -l /home/<your_user>/Downloads`
+            ls -l /home/<your_user>/Downloads
         - Use a **relative path** to do the same (assuming you are in your home directory):
-            `ls -l Downloads`
+            ls -l Downloads
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -669,9 +683,9 @@ tasks:
     action: |
       Let's use `type` to inspect some common commands. Run the following:
 
-      `type ls`
-      `type cd`
-      `type python`
+      type ls
+      type cd
+      type python
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -687,13 +701,13 @@ tasks:
         `updatedb`
     action: |
       Use `locate` to find the location of the `zip` command.
-        `locate zip`
+        locate zip
       Count the occurrences
-        `locate -c zip`
+        locate -c zip
       Let's be more specific by looking only into the /bin directory and count the occurrences:
-        `locate -c /bin/zip`
+        locate -c /bin/zip
       Now, limit the results to 10
-        `locate -n 10 /bin/zip`
+        locate -n 10 /bin/zip
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -708,7 +722,7 @@ tasks:
     action: |
       Let's use `find` to search for a file in your home directory.
 
-      `find ~ -name ".bashrc"`
+      find ~ -name ".bashrc"
 
       This command tells `find` to start searching in your home directory (`~`)
       and look for a file with the exact name `.bashrc`.
@@ -722,9 +736,9 @@ tasks:
       through each one in the order you provide.
     action: |
       Let's use `find` to search for a file in both the `/etc/` and your home (`~`)
-      directories at the same time. Run the following command:
+      directories at the same time. 
 
-      `find /etc ~ -name "passwd"`
+          find /etc ~ -name "passwd"
 
       The command will first search `/etc` and then search your home directory.
     verification: SKIP_CHECK
@@ -739,11 +753,11 @@ tasks:
       Let's use `-iname` to find a file in your home directory.
       
       1. Create a file named `temp_File.txt` in your home directory:
-         `touch ~/Temp_File.txt`
+         touch ~/Temp_File.txt
       2. Use `find` with `-iname` to find it, ignoring case:
-         `find ~ -iname "temp_file.txt"`
+         find ~ -iname "temp_file.txt"
       3. Use `find` with `-name` to find it using a regular expression:
-         `find ~ -name "Temp*.txt`
+         find ~ -name "Temp*.txt
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -758,11 +772,11 @@ tasks:
     action: |
       Let's find all the files in your home directory that are owned by your user.
       
-      `find ~ -user $USER`
+      find ~ -user $USER
       
       Now, let's find all files in `/etc` that are owned by the `0` UID:
       
-      `sudo find /etc -uid 0`
+      sudo find /etc -uid 0
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -773,7 +787,7 @@ tasks:
     action: |
       Let's find all files in your home directory that are not world-writable.
       
-      `find ~ -not -perm /o+w`
+      find ~ -not -perm /o+w
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -786,7 +800,7 @@ tasks:
     action: |
       Let's use find to list everything in your home directory except for the directories.
       
-      `find ~ -not -type d`
+      find ~ -not -type d
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -798,7 +812,7 @@ tasks:
     action: |
       Run the following command to find files in `/boot` that are larger than 10MB.
       
-      `sudo find /boot -size +10M`
+          sudo find /boot -size +10M
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -812,7 +826,7 @@ tasks:
     action: |
       Let's find all files in your home directory that were modified in the last 24 hours.
       
-      `find ~ -mtime -1`
+      find ~ -mtime -1
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -828,7 +842,7 @@ tasks:
     action: |
       Run `find` to find all directories in your home directory.
       
-      `find ~ -type d`
+          find ~ -type d
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -839,7 +853,7 @@ tasks:
     action: |
       Find all files in `/etc` that have more than 2 hard links.
       
-      `find /etc -links +2`
+          find /etc -links +2
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -869,7 +883,7 @@ tasks:
       Let's find all files in your home directory that have `.txt` and then
       long list them.
       
-      `find ~ -name "*.txt" -exec ls -l {} \;`
+      find ~ -name "*.txt" -exec ls -l {} \;
     verification: SKIP_CHECK
     exit_code: 0
 ...

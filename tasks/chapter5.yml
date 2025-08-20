@@ -36,10 +36,11 @@ tasks:
       Let's use `sudo` to run a command that requires `root` privileges.
 
       1. First, try to read the `/etc/shadow` file without `sudo`. (It will fail).
-         `cat /etc/shadow`
+         cat /etc/shadow
+
       2. Now, run the same command using `sudo`. You'll be prompted for your
          own password.
-         `sudo cat /etc/shadow`
+         sudo cat /etc/shadow
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -53,12 +54,14 @@ tasks:
       command, which checks for syntax errors before saving changes.
     action: |
       1. Open the `sudoers` file using `visudo`:
-         `sudo visudo`
+         sudo visudo
+
       2. Look for lines that define user privileges. For example:
-         ```
+         
          root ALL=(ALL:ALL) ALL
-         ```
+         
          This line means the `root` user can run any command on any host as any user.
+
       4. Exit `visudo`:
           - use the key combination `Ctrl+X` if using nano
           - use the key combination `Esc+:+q!` if using vim
@@ -90,7 +93,8 @@ tasks:
       Understanding this file is essential for managing user accounts on a Linux system.
     action: |
       1. Open the `/etc/passwd` file using `view`:`:
-         `view /etc/passwd`
+            view /etc/passwd
+
       2. Observe the structure of each line and the fields it contains.
       3. Exit the viewer by using the key combination `Esc+:+q`.
     verification: SKIP_CHECK
@@ -122,7 +126,8 @@ tasks:
       Understanding this file is essential for managing groups on a Linux system.
     action: |
       1. Open the `/etc/group` file using `view`:
-         `view /etc/group`
+            view /etc/group
+
       2. Observe the structure of each line and the fields it contains.
       3. Exit the viewer by using the key combination `Esc+:+q`.
     verification: SKIP_CHECK
@@ -137,13 +142,16 @@ tasks:
       See all available options with: `useradd --help`
     action: |
       1. Use the following command to create a new user:
-         `sudo useradd -s /bin/bash user1`
+              sudo useradd -s /bin/bash user1
+
          This creates a user named `user1` and sets the default shell to bash.
+
       2. Create "user2" specifying a home directory, shell, user ID, and info:
-         `sudo useradd -d /home/user2 -s /bin/bash -u 10002 -c "User Two" user2`
+         sudo useradd -d /home/user2 -s /bin/bash -u 10002 -c "User Two" user2
+
       3. Verify the creation of the users by checking the `/etc/passwd` file:
-         `cat /etc/passwd | grep user1`
-         `cat /etc/passwd | grep user2`
+         cat /etc/passwd | grep user1
+         cat /etc/passwd | grep user2
     verification: id user1 2> /dev/null
     exit_code: 0
   
@@ -155,11 +163,13 @@ tasks:
       See all available options with: `usermod --help`
     action: |
       1. Change the info of `user1` to `"User One"`:
-        `sudo usermod -c "User One" user1`
+          sudo usermod -c "User One" user1
+
       2. Add `user1` to the `wheel` group:
-        `sudo usermod -aG wheel user1`
+          sudo usermod -aG wheel user1
+
       3. Verify by checking the `/etc/passwd` and `/etc/group` files:
-         grep user1 /etc/passwd /etc/group
+          grep user1 /etc/passwd /etc/group
     verification: sudo userdbctl user user1 2> /dev/null | grep -q wheel
     exit_code: 0
   
@@ -171,11 +181,13 @@ tasks:
       See all available options with: `userdel --help`
     action: |
       1. Delete `user2` and its home directory:
-         `sudo userdel -r user2`
+          sudo userdel -r user2
+
       2. Verify the deletion by checking the `/etc/passwd` file:
-         `cat /etc/passwd | grep user2`
+          cat /etc/passwd | grep user2
+
       3. Ensure the home directory is removed:
-         `ls /home | grep user2`
+          ls /home | grep user2
     verification: ! grep -q user2 /etc/passwd
     exit_code: 0
   
@@ -187,9 +199,10 @@ tasks:
       See all available options with: `groupadd --help`
     action: |
       1. Create a new group named `developers`:
-         `sudo groupadd developers`
+          sudo groupadd developers
+
       2. Verify the creation of the group by checking the `/etc/group` file:
-         `grep developers /etc/group`
+          grep developers /etc/group
     verification: grep -q developers /etc/group
     exit_code: 0
   
@@ -201,9 +214,10 @@ tasks:
       See all available options with: `groupmod --help`
     action: |
       1. Change the name of the `developers` group to `devs`:
-         `sudo groupmod -n devs developers`
+          sudo groupmod -n devs developers
+
       2. Verify the change by checking the `/etc/group` file:
-         `grep devs /etc/group`
+          grep devs /etc/group
     verification: grep -q devs /etc/group
     exit_code: 0
 
@@ -214,11 +228,13 @@ tasks:
       additional permissions to users.
     action: |
       1. Add `user1` to the `devs` group:
-         `sudo usermod -aG devs user1`
+          sudo usermod -aG devs user1
+
       2. Verify the addition by checking the `/etc/group` file:
-         `grep devs /etc/group`
+          grep devs /etc/group
+
       3. Check the groups of `user1`:
-         `groups user1`
+          groups user1
     verification: groups user1 | grep -q devs
     exit_code: 0
   
@@ -230,9 +246,10 @@ tasks:
       See all available options with: `groupdel --help`
     action: |
       1. Delete the `devs` group:
-         `sudo groupdel devs`
+          sudo groupdel devs
+
       2. Verify the deletion by checking the `/etc/group` file:
-         `grep devs /etc/group`
+          grep devs /etc/group
     verification: ! grep -q devs /etc/group
     exit_code: 0
   
@@ -246,13 +263,17 @@ tasks:
       the current password followed by the new password twice for confirmation.
     action: |
       1. Change the password for `user1`:
-         `sudo passwd user1`
+          sudo passwd user1
+
          You will be prompted to enter a new password and confirm it.
+
       2. Verify the password change by logging in as `user1`:
-         `su - user1`
+          su - user1
+
          Enter the new password when prompted.
+
       3. Exit back to your original user:
-         `exit`
+          exit
     verification: sudo userdbctl user user1 2> /dev/null | grep Passwords | grep -q "1"
     exit_code: 0
   
@@ -270,11 +291,13 @@ tasks:
       - `-E`: Expiration date of the account.
     action: |
       1. Set password aging for `user1`:
-         `sudo chage -M 90 -m 7 -W 14 user1`
+          sudo chage -M 90 -m 7 -W 14 user1
+
          This sets the maximum age to 90 days, minimum age to 7 days, 
          and warning period to 14 days.
+
       2. Verify the settings by running:
-         `sudo chage -l user1`
+          sudo chage -l user1
     verification: sudo chage -l user1 | grep "Maximum" | grep -q "90"
     exit_code: 0
   
@@ -294,17 +317,19 @@ tasks:
       These files can be edited to customize the shell environment.
     action: |
       1. Open the `~/.bashrc` file in your preferred text editor:
-         `nano ~/.bashrc`
+            nano ~/.bashrc
+
       2. Add or modify environment variables, aliases, or functions as needed.
          For example, we will make an alias for the `ls -l` command so that it
          call the `ll` command it will print the output in a long listing format:
 
-          ```
           alias ll='ls -l'
-          ```
+
       3. Save and exit the editor.
+
       4. To apply the changes, open a new terminal or run:
-         `source ~/.bashrc`
+          source ~/.bashrc
+
       5. Test the alias by running `ll` in the terminal.
     verification: grep -qw ll ~/.bashrc 2> /dev/null
     exit_code: 0
@@ -321,12 +346,15 @@ tasks:
       - `USER`: The current user's username.
     action: |
       1. To view your current environment variables, run:
-         `printenv`
+          printenv
+
       2. To set a new environment variable, use:
-         `export FRUIT="apples"`
+          export FRUIT="apples"
+
          (To make it persistent, add it to your `~/.bashrc` file.)
+
       3. Verify the variable is set by running:
-         `echo $FRUIT`
+          echo $FRUIT
     verification: grep -qw FRUIT ~/.bashrc 2> /dev/null
     exit_code: 0
   
@@ -342,12 +370,15 @@ tasks:
       - `$PWD`: The current working directory.
     action: |
       1. To view your current shell variables, run:
-         `set`
+          set
+
       2. To set a new shell variable, use:
-         `FRUIT="banana"`
+          FRUIT="banana"
+
           (To make it persistent, add it to your `~/.bashrc` file)
+
       3. Verify the variable is set by running:
-         `echo $FRUIT`
+          echo $FRUIT
     verification: test "$(echo $FRUIT)" = "banana"
     exit_code: 0
   
@@ -390,9 +421,11 @@ tasks:
       The default editor is usually set using the `EDITOR` environment variable.
     action: |
       1. Verify your current default editor by running:
-         `echo $EDITOR`
+          echo $EDITOR
+
       2. Set your default editor to `nano` by running:
-         `export EDITOR=nano`
+          export EDITOR=nano
+
       3. To make this change persistent, add it to your `~/.bashrc` file
     verification: grep -qw "export EDITOR=nano" ~/.bashrc 2> /dev/null
     exit_code: 0
@@ -404,16 +437,18 @@ tasks:
       environment variables in your shell configuration file (e.g., `~/.bashrc`).
     action: |
       1. Check your current history size by running:
-         `echo $HISTSIZE`
+         echo $HISTSIZE
+
       2. Set the history size to 1000 by running:
-         `export HISTSIZE=10000`
+         export HISTSIZE=10000
+
       3. Set the history file size to 2000 by running:
-         `export HISTFILESIZE=20000`
+         export HISTFILESIZE=20000
+
       4. To make these changes persistent, add them to your `~/.bashrc` file:
-         ```
          echo "export HISTSIZE=10000" >> ~/.bashrc
          echo "export HISTFILESIZE=20000" >> ~/.bashrc
-         ```
+         
     verification: grep -qw "HIST" ~/.bashrc 2> /dev/null
     exit_code: 0
   
