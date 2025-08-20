@@ -2,7 +2,7 @@
 # Spec file for building the chatty RPM package.
 
 Name:           chatty
-Version:        1.7
+Version:        2.0
 Release:        0%{?dist}
 Summary:        An interactive Linux learning framework to build exercises in the CLI.
 License:        MIT
