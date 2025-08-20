@@ -31,7 +31,7 @@ CD = "\033[0;37m"       # Color Description - White
 CA = "\033[0;32m"       # Color Action      - Green
 CS = "\033[0;32m"       # Color Success     - Green
 CF = "\033[0;31m"       # Color Failure     - Red
-C_HELP = "\033[0;34m"   # Color Help        - Blue
+CB = "\033[0;34m"       # Color Help        - Blue
 CP = "\033[0;35m"       # Color Prompt      - Magenta
 
 # Global State File
@@ -143,12 +143,12 @@ def display_current_task():
     if action_value is None or action_value.strip().upper() == "NEXT":
         action_message = f"{CP}Action: Press 'n' to continue{CR}"
     else:
-        action_message = f"{CA}Action: In your other terminal...\n{action_value}{CR}"
+        action_message = f"{CT}Action: In your other terminal...\n{CH}{action_value}{CR}"
 
     print(f"\n{CH}--- {module_data.get('title', 'Unknown Module')} ---{CR}")
     print(f"{CH}--- Section: {module_data.get('section', 'Unknown Section')} ({current_task_index + 1}/{total_tasks}) ---{CR}")
     print(f"\n{CT}Task: {task.get('name', 'Unnamed Task')}\n{CR}")
-    print(f"{CD}Description:\n{task.get('description', 'No description provided.')}{CR}")
+    print(f"{CT}Description:\n{CD}{task.get('description', 'No description provided.')}{CR}")
     print(action_message)
 
     # print(f"{CA}Action: In your other terminal...\n{task.get('action', 'No action specified.')}{CR}")
@@ -312,15 +312,15 @@ def display_help():
     clear_screen()
 
     print(f"\n{CH}--- ChaTTY Help ---\n{CR}")
-    print(f"{CT} 'h' {C_HELP}- Show this help menu{CR}")
-    print(f"{CT} 'n' {C_HELP}- Move to the next task{CR}")
-    print(f"{CT} 'p' {C_HELP}- Return to the previous task{CR}")
-    print(f"{CT} 'v' {C_HELP}- Verify the current task{CR}")
-    print(f"{CT} 's' {C_HELP}- Save the current state{CR}")
-    print(f"{CT} 'r' {C_HELP}- Reload the last saved state{CR}")
-    print(f"{CT} 'q' {C_HELP}- Quit ChaTTY{CR}")
+    print(f"{CT} 'h' {CH}- Show this help menu{CR}")
+    print(f"{CT} 'n' {CH}- Move to the next task{CR}")
+    print(f"{CT} 'p' {CH}- Return to the previous task{CR}")
+    print(f"{CT} 'v' {CH}- Verify the current task{CR}")
+    print(f"{CT} 's' {CH}- Save the current state{CR}")
+    print(f"{CT} 'r' {CH}- Reload the last saved state{CR}")
+    print(f"{CT} 'q' {CH}- Quit ChaTTY{CR}")
     print(f"\n{CS}NOTE: {CT}Run exercises in a separate terminal.{CR}")
-    print(f"{C_HELP}--------------------{CR}")
+    print(f"{CH}--------------------{CR}")
     print(f"\n{CP}Press 'h' or 'Escape' to return to your task...{CR}", end='', flush=True)
 
     while True:

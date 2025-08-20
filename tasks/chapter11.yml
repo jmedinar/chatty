@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=https://schemastore.org/yamllint.json
+# Example format and required fields
+  # - name: 
+  #   description: 
+  #   action: 
+  #   verification: 
+  #   exit_code: 
+---
+title: Chapter 11
+section: 
+tasks:
+
+...

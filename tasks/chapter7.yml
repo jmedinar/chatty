@@ -1,0 +1,362 @@
+# yaml-language-server: $schema=https://schemastore.org/yamllint.json
+# Example format and required fields
+  # - name: 
+  #   description: 
+  #   action: 
+  #   verification: 
+  #   exit_code: 
+---
+title: Chapter 7
+section: Process Management
+tasks:
+
+  - name: Rebooting and shutting down the System
+    description: |
+      System shutdown and reboot are critical administrative tasks.
+      It's important to understand the different commands and their options.
+
+      - `systemctl`: The systemd command to manage system services, 
+                     including rebooting and shutting down, this is the 
+                     preferred method on systems using systemd.
+
+      In systems not using systemd, you might encounter other commands like:
+
+      - `shutdown`: You can schedule a shutdown, send a warning message to 
+                    users, and choose between shutting down and rebooting.
+      - `reboot`: A simple command to reboot the system immediately.
+      - `halt`: A simple command to halt the system immediately.
+      - `poweroff`: A simple command to power off the system immediately.
+    action: |
+      *** THE FOLLOWING COMMANDS ARE EXAMPLES AND SHOULD NOT BE EXECUTED ***
+
+      To reboot the system immediately, you can use:
+      
+          systemctl reboot
+      
+      To power off the system immediately, you can use:
+
+          systemctl poweroff
+
+      To specify a time for the reboot or shutdown:
+
+          systemctl reboot --when="8:25"
+          systemctl poweroff --time="12:00am"
+
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding system target levels
+    description: |
+      A target represents a specific system state in which we group services
+      and units that should be started or stopped together.
+
+      So for example, the `graphical.target` is a target that includes all the
+      services and units needed to run a graphical user interface.
+    action: |
+      List all the available targets on your system.
+      
+          sudo systemctl list-unit-files --type=target
+
+        static: Not enabled by default but can be started manually
+        enabled: Will be started automatically at boot time
+        disabled: Not enabled and will not be started automatically
+        alias: Not targets themselves, but rather aliases for another target.
+
+      You can also check the current target by running:
+
+          sudo systemctl get-default
+
+      You can change the default target by running:
+
+          sudo systemctl set-default <target>
+
+      Or temporarily switch to a different target by running:
+
+          sudo systemctl isolate <target>
+      
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the `ps` command to view running processes
+    description: |
+      The `ps` command is used to display information about running processes.
+      It can show you the process ID (PID), the user running the process, 
+      the CPU and memory usage, and more.
+
+      Common options include:
+
+      - `-e`: Show all processes.
+      - `-f`: Show full format listing.
+      - `-u <user>`: Show processes for a specific user.
+
+    action: |
+      1. Run a couple of sleep commands in the background:
+          sleep 1000 &
+          sleep 2000 &
+
+      2. Use the `ps` command to view running processes:
+          ps -ef
+
+      3. Use the `ps` command to see your own processes:
+          ps -fu $(whoami)
+
+      4. Add the `-l` option to see more details:
+          ps -lfu $(whoami)
+
+      5. Use the `-o` option to customize the output format:
+          ps -fo pid,ppid,cmd,%mem,%cpu --sort=-%mem
+      
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Sending signals to processes
+    description: |
+      Signals are used to communicate with processes. 
+      You can send signals to processes to control their behavior.
+
+      Common signals include:
+
+      -  (3) SIGQUIT: Request a process to quit and create a core dump.
+      -  (9) SIGKILL: Forcefully terminate a process.
+      - (15) SIGTERM: Request a process to terminate gracefully.
+      - (18) SIGCONT: Resume a paused process.
+      - (19) SIGSTOP: Pause a process.
+
+      See all available signals by running:
+
+          kill -l
+
+    action: |
+      1. Find the PID of your `sleep` running processes from the previous task:
+      
+          pgrep -a sleep
+
+      2. Send a SIGTERM signal to the `sleep 1000` process:
+      
+          kill -15 <PID>
+
+      3. Send a SIGKILL signal to the `sleep 2000` process:
+      
+          kill -9 <PID>
+    verification: ! pgrep sleep 2>/dev/null
+    exit_code: 0
+
+  - name: Foreground and background processes
+    description: |
+      Processes can run in the foreground or background, in other words,
+      attached to your visible terminal or to a terminal running in the background.
+
+      Use the `&` symbol to run a command in the background
+      Use the `jobs` command to list background jobs
+      Use the `fg` command to bring a background process to the foreground.
+      Use the `bg` command to resume a stopped job in the background.
+      
+    action: |
+      1. Run a couple of commands in the background:      
+          sleep 9999 &
+          sleep 8888 &
+
+      2. List all background jobs:      
+          jobs
+
+      3. Bring the second background job "id 2" to the foreground:
+          fg %2
+
+      4. Pause the foreground job by pressing `Ctrl+Z`.
+
+      5. List all background jobs again (you should see the job stopped):
+          jobs
+
+      6. Resume the stopped job in the background:
+          bg %1
+
+      7. List all background jobs again (you should see the job running):
+          jobs
+
+      8. Terminate the background jobs, one by one:
+          kill %1
+      
+    verification: ! pgrep sleep 2>/dev/null
+    exit_code: 0
+
+  - name: Managing services with `systemctl`
+    description: |
+      The `systemctl` command is used to manage system services and targets.
+      It can start, stop, enable, disable, and check the status of services.
+
+      Common options include:
+
+      - `start`: Start a service.
+      - `stop`: Stop a service.
+      - `restart`: Restart a service.
+      - `status`: Check the status of a service.
+      - `enable`: Enable a service to start at boot time.
+      - `disable`: Disable a service from starting at boot time.
+
+    action: |
+      1. Check the status of the `sshd` service:
+          sudo systemctl status sshd
+
+      2. Start the `sshd` service:
+          sudo systemctl start sshd
+
+      3. Enable the `sshd` service to start at boot time:
+          sudo systemctl enable sshd
+
+      4. Restart the `sshd` service:
+          sudo systemctl restart sshd
+
+      5. Stop the `sshd` service:
+          sudo systemctl stop sshd
+      
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Explore other services with `systemctl`
+    description: |
+      The `systemctl` command can also be used to explore other services
+      and their status. You can list all active services, check the status
+      of a specific service, and more.
+
+      Common options include:
+
+      - `list-units`: List all active units (services, sockets, etc.).
+      - `list-unit-files`: List all unit files (enabled, disabled, static).
+      - `is-active`: Check if a service is active.
+      - `is-enabled`: Check if a service is enabled to start at boot time.
+
+    action: |
+      1. List all active services:
+          sudo systemctl list-units --type=service
+
+      2. Check the status of the `crond` service:
+          sudo systemctl status crond.service
+
+      3. List all unit files:
+          sudo systemctl list-unit-files --type=service
+
+      4. Check if the `crond` service is enabled:
+          sudo systemctl is-enabled crond.service
+
+      5. Check if the `crond` service is active:
+          sudo systemctl is-active crond.service
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Scheduling jobs with `at`
+    description: |
+      The `at` command is used to schedule ONE-TIME jobs to run at a specific time.
+      It allows you to run commands or scripts at a later time without needing to
+      keep a terminal open.
+
+      Common options include:
+
+      - `-l`: List scheduled jobs.
+      - `-d`: Delete a scheduled job.
+      - `-f`: Specify a file containing the command to run.
+
+      Time formats can be specified in various ways, such as:
+      - `now + 2 minutes`
+      - `tomorrow`
+      - `2:00 PM`
+      - `next Friday`
+      - `midnight`
+      - `noon`
+
+    action: |
+      1. Schedule a job to run in 2 minutes:
+          echo "echo Gotcha!" | at now + 2 minutes
+          at now + 2 minutes <<< "echo Gotcha again!"
+
+      2. List scheduled jobs:
+          at -l
+      
+      3. Wait for the job to run and check the output in your terminal.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Scheduling jobs with `cron`
+    description: |
+      The `cron` daemon is used to schedule recurring jobs to run at specific times.
+      The `crontab` command is used to manage user-specific cron jobs.
+
+      Common options include:
+        - `-l`: List user's cron jobs.
+        - `-e`: Edit user's cron jobs.
+        - `-r`: Remove user's cron jobs.
+        - `-u <user>`: Specify a different user
+
+      Cron jobs format:
+
+      <minute 0-59> <hour 0-23> <day 1-31> <month 1-12> <weekday 0-7> <command>
+
+      For example, 0 2 * * * means "every day at 2:00 AM"
+    action: |
+      1. List the current user's cron jobs:
+          crontab -l  
+      2. Edit the current user's cron jobs:
+          crontab -e
+      3. Add a new cron job to run a script every day at 2:00 AM:
+          0 2 * * * echo "Hello, Cron! $(date)" >> /tmp/cron_test.log
+      4. Save and exit the editor.
+      5. List the current user's cron jobs again to verify the new job was added:
+          crontab -l
+    verification: sudo test -f /var/spool/cron/$USER 2>/dev/null
+    exit_code: 0 
+
+  - name: Scheduling jobs with `systemd timers`
+    description: |
+      Timers are a great alternative to `cron` jobs, as they are managed by
+      `systemd` and can be easily monitored. They are configured with two files:
+      a `.service` file that defines a task, and a `.timer` file that defines the schedule.
+
+      A regular user can create their own timers without `sudo` by placing the
+      files in `~/.config/systemd/user/` and using the `--user` flag.
+      
+      Common options include:
+        - `systemctl list-timers`: List all active timers.
+        - `systemctl start <timer>`: Start a specific timer.
+        - `systemctl stop <timer>`: Stop a specific timer.
+    action: |
+      1. List all active timers for the current user:
+            systemctl list-timers --user
+      
+      2. Create a directory for your user-level `systemd` units:
+            mkdir -p ~/.config/systemd/user
+      
+      2. Create a service file "~/.config/systemd/user/test-timer.service" 
+         that prints a message to a file with the following content:
+         
+            [Unit]
+            Description=My test timer
+            [Service]
+            ExecStart=/bin/sh -c 'echo "Hello, Timer! $(date)" >> /tmp/timer_test.log'
+         
+      3. Create a timer file "~/.config/systemd/user/test-timer.timer"
+         that runs the service every minute:
+
+            [Unit]
+            Description=My test timer
+            [Timer]
+            OnCalendar=minutely
+            [Install]
+            WantedBy=timers.target
+
+      4. Reload your user's systemd daemon to find the new files:
+            systemctl --user daemon-reload
+      
+      5. Enable and start the timer:
+            systemctl --user enable --now test-timer.timer
+
+      6. Check the status of your timer:
+            systemctl --user status test-timer.timer
+      
+      7. After a minute list your timers again to see the new timer:
+            systemctl --user list-timers
+
+      8. Check the output in `/tmp/timer_test.log`:
+            cat /tmp/timer_test.log 
+
+    verification: test -f /tmp/timer_test.log 2>/dev/null
+    exit_code: 0
+...

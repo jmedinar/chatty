@@ -1,0 +1,889 @@
+# yaml-language-server: $schema=https://schemastore.org/yamllint.json
+# Example format and required fields
+  # - name: 
+  #   description: 
+  #   action: 
+  #   verification: 
+  #   exit_code: 
+---
+title: Chapter 2
+section: Linux Fundamentals
+tasks:
+
+  - name: Knowing your terminal
+    description: |
+      The shell prompt is the terminal window’s title bar that, 
+      by default, will have the following format:
+
+      [ username@hostname working_directory]$
+    action: |
+      1. Open a terminal window and observe the shell prompt.
+          
+      2. Switch to the root user by running the command:
+            sudo -i
+
+      3. Observe the shell prompt again.
+
+      4. Type `exit` to return to your regular user shell prompt.
+
+      5. What differences can you see between the two prompts?
+         - The username change when switching users.
+         - The working directory may also Change
+         - The prompt symbol changes from 
+            `$` when running as a regular user 
+            `#` when running as an administrator.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Running commands
+    description: |
+      The shell always expects a command FIRST
+      or will generate an error because the order
+      given won't be recognized by the shell. 
+    action: |
+      run some gibberish command. e.g. asdagdghjn
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Running commands correctly
+    description: |
+      Linux is case sensitive, what you type has to be exact!
+    action: |
+      1. Run the `whoami` command to see your current user.
+      2. Run the `Who am I` command, it will return an error.
+      3. Run the `LS` command, it will return an error.
+      4. Run the `ls` command to list your files.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Running multiple commands
+    description: |
+      If you want to type more than one command on a single line, 
+      you can use the semicolon (;) as a command separator.
+    action: |
+      Run the following command to list your files 
+      and print the current date:
+          ls; date
+
+      You can also use the `&&` operator to run a second 
+      command only if the first one succeeds:
+          ls && echo "Good job, files listed successfully"
+
+      Or use the `||` operator to run a second command \
+      only if the first one fails:
+          LS || echo "Seriously? Remember Linux is case sensitive!"
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Running commands with options
+    description: |
+      Commands in Linux follow a standard syntax, often referred to as:
+
+      command [options] [arguments]
+
+      - `command`:  The program or instruction you are asking
+                    the shell to execute (e.g., `ls`, `pwd`, `touch`).
+      - `options`:  Used to modify the behavior of the command. 
+                    They usually begin with a single hyphen for short options (e.g., `-l`)
+                    or two hyphens for long options (e.g., `--long-listing`).
+      - `arguments`:  The items or values the command acts upon.
+                      This is often a file, a directory path, a user name, or a string of text.
+    action: |
+      run the `ls` command to list your files
+      run the `ls -l` command to list them with more details, known as "long listing"
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Running commands with arguments
+    description: |
+      The `ls` command can also take arguments to specify what to list
+      this can be single files or directories, multiple files or directories,
+      or regular expressions
+    action: |
+      Run `ls -l ~/.bashrc` to list the (.bashrc) file in your home directory (~).
+      Run `ls -l /home` to list the contents of the /home directory.
+      Run `ls -l ~/.bashrc ~/.bash_history` to list multiple files.
+      Run `ls -l /home /mnt` to list multiple directories.
+      Run `ls -l /etc/*.conf` to list all .conf files in the /etc directory.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the date command
+    description: |
+      The `date` command print or set the system date and time
+
+      Usage: date [OPTION]... [+FORMAT]
+
+      To see all the format options use the `date --help` command
+    action: |
+      Print the date in the default format with the following command:
+        date
+
+      Print the date in short format
+        date +%D
+
+      Print only the year
+        date +%Y
+
+      Print only the month
+        date +%B
+
+      Print only the day of the week
+        date +%A
+
+      Convert seconds since the Epoch (1970-01-01 UTC) to a date
+        date --date='@2147483647'
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Understanding the usage format of commands
+    description: |
+      All the commands come with short and long help.
+      To see the short help, add the `--help` option to the command.
+
+        ls --help
+        find --help
+
+      The first line presents the `Usage` format of the command.
+
+        e.g. `Usage: ls [OPTION]... [FILE]...`
+        e.g. `Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]`
+
+      The way we interpret this is:
+
+       - <Empty> Argument is required
+       - [] Optional argument
+       - | Mutually exclusive arguments
+       - … Many arguments are allowed
+
+      So the usage of the `ls` command can be read as:
+
+        "The ls command supports multiple optional options and arguments."
+    action: |
+      Run the `ls --help | head -1` command to print only the first line of the help
+      
+            find --help | head -1
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the df command
+    description: |
+      The `df` command prints information about the file system space usage.
+      Usage: df [OPTION]... [PATH]...
+
+      To see all the format options use the `df --help` command
+    action: |
+      Run `df` to see the default output
+      Run `df /home` to see the space usage only of the /home directory
+      run `df -h /home` to see the space usage in human readable format
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the free command
+    description: |
+      The `free` command displays the amount of memory available on the system.
+      Usage: free [OPTION]...
+
+      To see all the format options use the `free --help` command
+    action: |
+      Run `free` to see the default output
+      Run `free -h` to see the space usage in human readable format
+      Run `free -m` to see the space usage in megabytes
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the pwd command
+    description: |
+      The `pwd` command prints the name of the current working directory.
+      Usage: pwd
+    action: |
+      Run `pwd` to see the default output
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the uptime command
+    description: |
+      The `uptime` command prints the system uptime.
+      Usage: uptime [OPTION]...
+
+      To see all the format options use the `uptime --help` command
+    action: |
+      Run `uptime` to see the default output
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the w command
+    description: |
+      The `w` command show who is logged on to the system.
+      Usage: w [OPTION]...
+
+      To see all the format options use the `w --help` command
+    action: |
+      Run `w` to see the default output
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the last command
+    description: | 
+      The `last` command show a listing of last logged users
+      Usage: last [OPTION]...
+
+      To see all the format options use the `last --help` command
+    action: |
+      Run `last` to see the default output
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the hostname command
+    description: |
+      The `hostname` command show or set the system hostname.
+      Usage: hostname [OPTION]... [NAME]
+
+      To see all the format options use the `hostname --help`
+    action: |
+      Run `hostname` to see the default output
+      Run `hostname -s` to see the short hostname
+      Run `hostname -f` to see the full hostname
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Exploring other commands
+    description: |
+      Here is a list of simple but useful commands
+
+        - cal     display a calendar
+        - echo    prints a given string
+        - clear   clear the terminal screen (Ctrl+l)
+
+    action: Explore their usage and run them all
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Shell hacks (TAB completion)
+    description: |
+      One of the most useful tools of the shell is TAB completion.
+
+      TAB completion allows a user to quickly complete commands, file names or paths.
+      By providing Linux with just enough information and then using TAB keystrokes. 
+      
+      If the information given is not unique, pressing TAB twice 
+      displays all possible options so we can provide more clues.
+    action: |
+      Let's use TAB completion to long-list the `.bashrc` file in your home directory.
+
+      First, navigate to the root directory: 
+      
+          cd /
+
+      Then, use TAB completion to build the path:
+      1. Type `ls -l h` and press `TAB`. It should complete to `/home/`.
+      2. Type the first character of your username and press `TAB`.
+      3. Type the dot `.` and press `TAB` twice. Linux will show all dot-files in your home directory.
+      4. Press `b` then `TAB` to complete the `.bashrc` path.
+      5. Press `Enter` to execute the command.
+    verification: SKIP_CHECK
+    exit_code: 0`
+
+  - name: Shell hacks (TAB completion cont.)
+    description: |
+      TAB completion also works with command, options and arguments
+    action: |
+      Type `useradd --` and hit TAB twice
+      Linux will present all the `--` long options of the command
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Shell hacks (multi-line commands)
+    description: |
+      Sometimes commands, arguments and options will generate very long lines of text 
+      that can be hard to manage or understand, in those cases breaking them into 
+      multiple lines is very helpful.
+
+      We can continue a command by adding a `\` backslash at the end of each line.
+    action: |
+      Let's use the `head -3` command to print first 3 lines of the following files:
+
+          - /etc/passwd
+          - /etc/group
+          - /etc/hosts
+          - /etc/profile
+          - /etc/motd
+
+      Run the command:
+        head -3 /etc/passwd \
+              /etc/group \
+              /etc/hosts \
+              /etc/profile \
+              /etc/motd
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using shell history
+    description: |
+      The shell stores every single command executed in a file called 
+      `~/.bash_history` that we can print using the `history` command.
+    action: |
+      history
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using shell history (Cont.)
+    description: |
+      We can run a command from the history using the exclamation mark `!`
+      followed by the command number
+    action: |
+      Select a command from your history, for instance `27` and run it.
+
+        !27
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using shell history (Cont.)
+    description: |
+      You can also use your keyboard's UP and DOWN keys to navigate the history
+    action: NEXT
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Keyboard shortcuts (movement)
+    description: |
+      The following are very useful keyboard shortcuts to move in the line
+
+        - ctrl+a  move to the beginning of the line
+        - ctrl+e  move to the end of the line
+        - ctrl+left move one word to the left
+        - ctrl+right move one word to the right
+    action: NEXT
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Keyboard shortcuts (deletion)
+    description: |
+      The following are very useful keyboard shortcuts to delete in the line
+
+        - ctrl+u  delete from the cursor to the beginning of the line
+        - ctrl+k  delete from the cursor to the end of the line
+        - ctrl+w  delete the word
+    action: NEXT
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Keyboard shortcuts
+    description: |
+      The following are very useful keyboard shortcuts
+
+        - ctrl+l  clear the screen
+        - ctrl+d  exit the shell
+        - ctrl+c  cancel a command
+        - ctrl+z  kill a command
+    action: NEXT
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Re-using arguments
+    description: |
+      The shell allows us recall the last argument from the previous command
+      using the keyboard shortcut `alt + .` (dot). This avoids typing
+      the same argument multiple times and is a great way to work faster.
+    action: |
+      Let's say we want to long-list a file and then check its size.
+
+      Run the command:
+        ls -l /etc/passwd
+        
+      Now, instead of typing the full `du -h /etc/passwd` use the shortcut:
+
+        `du -h` then press `alt + .` (dot). The shell will insert the path.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the tail and head commands
+    description: |
+      The `head` command prints the first ten lines of a file.
+      The `tail` command prints the last ten lines of a file.
+
+      In both commands you can specify the number of lines to print.
+    action: |
+      head /etc/passwd
+      tail /etc/passwd
+      head -5 /etc/passwd
+      tail -5 /etc/passwd
+      head /etc/passwd | tail -2
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Double bang (!!) command repetitions
+    description: |
+      Sometimes we execute a command and forget to add an argument or option.
+      Instead of retyping the whole command, we can use the `!!` shortcut
+      to repeat the previously executed command. This is especially useful
+      when you need to add `sudo` or modify a command slightly.
+    action: |
+      Let's use the double bang shortcut with some examples.
+
+      1. First, print the first ten lines of a file:
+         head /etc/passwd
+
+      2. Now, repeat the command but only print the first three lines:
+         !! -n 3
+
+      3. Finally, use the shortcut to run the previous command with `sudo`:
+         sudo !!
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: String substitution (^^)
+    description: |
+      You can quickly replace strings on the previous command using the `^^` shortcut.
+
+      The format is:
+
+        ^old_string^new_string
+      
+      This is a quick way to correct a typo in the last command you ran.
+    action: |
+      Let's run a command with a deliberate typo
+        ls -l /ect/passwd
+
+      You'll get a "No such file or directory" error.
+
+      Now, run the command again and fix the typo using the shortcut:
+        ^ect^etc
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (The type command)
+    description: |
+      The `type` command prints the actual command that will be executed when called.
+      This is useful because some commands are aliased or masked, which means
+      they have been modified to execute differently than their original version.
+    action: |
+      Let's use `type` to inspect some common commands.
+      
+      In your terminal, run each of the following:
+
+      type ls
+      type date
+      type passwd
+      type pwd
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (The which command)
+    description: |
+      The `which` command is a useful companion to `type`. It prints the full
+      path of the executable file that would be run when a command is called.
+      This is how you can find the exact location of a program on your system.
+    action: |
+      Use `which` to find the location of a command. For example, run:
+      
+      which ls
+      which date
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (The whatis command)
+    description: |
+      The `whatis` command displays a one-line description from a command's
+      manual page. This gives you a quick summary of a command's purpose
+      without having to open the full `man` page.
+    action: |
+      Use `whatis` to get a quick description of a command. For example, run:
+      
+      whatis ls
+      whatis which
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (The apropos command)
+    description: |
+      The `apropos` command performs a keyword search on the short descriptions
+      of all manual pages. It's useful when you know a command's purpose but
+      can't remember its name.
+    action: |
+      Run the `apropos` command to find commands related to a keyword.
+      For example, to find commands that manage files, run:
+      
+      apropos file
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (The --help option and help command)
+    description: |
+      Most commands support a `--help` option, which prints a summary of
+      the command's usage and available options. It's often the fastest
+      way to get a reminder of a command's syntax.
+
+      For shell built-ins like `cd` or `history`, the `help` command is
+      used instead of `--help`.
+    action: |
+      See the different help outputs:
+
+      ls --help
+
+      help cd
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (The man pages)
+    description: |
+      The `man` (manual) command is the primary source of in-depth
+      documentation for a command. It displays a command's full
+      manual page, which includes its syntax, a detailed description,
+      options, and examples.
+    action: |
+      man free
+
+      When you are done reading, press `q` to return to your terminal.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (Navigating the man pages)
+    description: |
+      The `man` pages are viewed with a pager program, typically `less`,
+      which allows you to move through the content one screen at a time.
+      Here are the most common navigation shortcuts:
+      
+      - `Page Down`: Scroll down one full page.
+      - `Page Up`: Scroll up one full page.
+      - `/`: Search forward for a specific string.
+      - `n`: Jump to the next search result.
+      - `q`: Quit the manual page viewer.
+    action: |
+      man find
+
+      When you are done, press `q` to return to your terminal.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Asking for help! (man -k, and man pages sections)
+    description: |
+      The `man` command can do more than just display a manual page.
+      The `-k` option performs a keyword search of all man page descriptions,
+      which is useful for finding commands when you only know their function.
+
+      Also, some commands appear in multiple sections of the manual (e.g., a command
+      and a file format). You can specify a section number to view a specific page,
+      such as `man 5 passwd` for the file format versus `man 1 passwd` for the command.
+    action: |
+      man -k passwd
+      man 1 passwd
+      man 5 passwd
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Creating your first command (alias)
+    description: |
+      An `alias` is a shortcut for a longer command or a series of commands.
+      Creating an alias allows you to execute a complex command with a simple,
+      easy-to-remember name.
+      
+      For example, `alias ll='ls -l'` creates a new command `ll` that runs the
+      long-listing format of the `ls` command.
+    action: |
+      Let's create a temporary alias in our current shell session 
+      that will count the txt files in our current location
+      
+      alias txtcount='ls -l *.txt | wc -l'
+
+      Now, run `txtcount` to see your new command in action.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Creating your first command (making aliases permanent)
+    description: |
+      The alias you just created is only temporary and will 
+      be lost when the terminal session ends.
+
+      To make an alias permanent, you must add it to your shell's 
+      startup file, which is usually `~/.bashrc`.
+    action: |
+      Firstly, open a new terminal and try to run the `txtcount` command. (It will fail)
+      Close the terminal.
+
+      Next, let's make the `txtcount` alias permanent.
+
+      1. Open your `~/.bashrc` file in a text editor:
+      2. Add the alias to the end of the file:
+         `alias txtcount='ls -l *.txt | wc -l'`
+      3. Save and close the file.
+      4. Open a new terminal and try to run the `txtcount` command. (It will succeed)
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Viewing file structures with tree
+    description: |
+      The `tree` command is a powerful tool for viewing a directory's contents
+      in a tree-like, visual format. This is much more intuitive than a simple
+      list when you're trying to understand a project's structure.
+    action: |
+      Let's install the `tree` package and then use it to visualize a directory.
+
+      1. Install the `tree` package:
+         sudo dnf install -y tree
+
+      2. Now, run `tree` on your home directory to see your files:
+         tree -L 1 ~
+
+         Notice: we limited the output to just 1 level of depth (-L 1) 
+                 for simplification
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Changing to a different directory (cd command)
+    description: |
+      The `cd` (change directory) command is one of the most fundamental
+      commands in Linux. It is used to move from your current directory
+      to another directory on the filesystem.
+    action: |
+      Let's practice navigating between a few directories.
+
+      1. Change to the `/etc` directory:
+         cd /etc
+      2. Change to the `/home` directory:
+         cd /home
+      3. Change to the `/var/log` directory:
+         cd /var/log
+      4. Now go up one directory level:
+         cd ..
+      5. Now jump back and fort between the current and the last visited directory
+         cd -
+         (Do it multiple times!)
+      6. Finally, return to your home directory:
+         cd
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Absolute vs Relative paths (cd command)
+    description: |
+      When navigating the filesystem, you can use two types of paths:
+      
+      - An **absolute path** starts from the root directory (`/`).
+        It provides the full, unambiguous location of a file or directory.
+      - A **relative path** starts from your current working directory.
+        It's shorter and more convenient when you're already close to your destination.
+    action: |
+      Let's practice using both path types.
+      
+      1. Ensure you are in your home directory:
+        cd
+      2. Run these commands and observe the results:
+        - Use an **absolute path** to view the contents of the `Downloads` directory:
+            ls -l /home/<your_user>/Downloads
+        - Use a **relative path** to do the same (assuming you are in your home directory):
+            ls -l Downloads
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the type command
+    description: |
+      The `type` command is a helpful tool for understanding how a command
+      will be interpreted by the shell. It tells you whether a command is
+      a built-in shell command, a file on your system's PATH, or an alias.
+    action: |
+      Let's use `type` to inspect some common commands. Run the following:
+
+      type ls
+      type cd
+      type python
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the locate command
+    description: |
+      The `locate` command is used to find files on a Linux system by searching
+      a pre-built database.
+
+      The database is updated periodically, so a newly created file might not
+      show up immediately.
+
+      You can force the re-creation of the database by running the command:
+        `updatedb`
+    action: |
+      Use `locate` to find the location of the `zip` command.
+        locate zip
+      Count the occurrences
+        locate -c zip
+      Let's be more specific by looking only into the /bin directory and count the occurrences:
+        locate -c /bin/zip
+      Now, limit the results to 10
+        locate -n 10 /bin/zip
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (basics!)
+    description: |
+      The `find` command is a powerful utility for searching the filesystem.
+      Unlike `locate`, `find` searches live, from the point in the directory
+      tree that you specify. This makes it more accurate for finding recently
+      created files.
+
+      Its basic format is `find [starting_directory] [expression]`.
+    action: |
+      Let's use `find` to search for a file in your home directory.
+
+      find ~ -name ".bashrc"
+
+      This command tells `find` to start searching in your home directory (`~`)
+      and look for a file with the exact name `.bashrc`.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (multiple locations)
+    description: |
+      You can search multiple locations at once by listing the starting
+      directories as separate arguments. The `find` command will search
+      through each one in the order you provide.
+    action: |
+      Let's use `find` to search for a file in both the `/etc/` and your home (`~`)
+      directories at the same time. 
+
+          find /etc ~ -name "passwd"
+
+      The command will first search `/etc` and then search your home directory.
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-name and -iname)
+    description: |
+      The `-name` option is used to find files with a specific name, and it is
+      case-sensitive. For a case-insensitive search, use the `-iname` option.
+      You can also use wildcards like `*` and `?` for pattern matching.
+    action: |
+      Let's use `-iname` to find a file in your home directory.
+      
+      1. Create a file named `temp_File.txt` in your home directory:
+         touch ~/Temp_File.txt
+      2. Use `find` with `-iname` to find it, ignoring case:
+         find ~ -iname "temp_file.txt"
+      3. Use `find` with `-name` to find it using a regular expression:
+         find ~ -name "Temp*.txt
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-user, -group, -uid, and -gid)
+    description: |
+      You can search for files based on ownership.
+      
+      - `-user <name>`: Finds files owned by a specific user.
+      - `-group <name>`: Finds files owned by a specific group.
+      - `-uid <id>`: Finds files owned by a specific User ID.
+      - `-gid <id>`: Finds files owned by a specific Group ID.
+    action: |
+      Let's find all the files in your home directory that are owned by your user.
+      
+      find ~ -user $USER
+      
+      Now, let's find all files in `/etc` that are owned by the `0` UID:
+      
+      sudo find /etc -uid 0
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-perm)
+    description: |
+      The `-perm` option allows you to search for files with specific permissions.
+      You can use it with octal notation (e.g., `755`) or symbolic notation (e.g., `u=rwx,g=rx,o=rx`).
+    action: |
+      Let's find all files in your home directory that are not world-writable.
+      
+      find ~ -not -perm /o+w
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-not)
+    description: |
+      The `-not` operator is used to negate an expression. This allows you
+      to find files that *do not* match a specific criteria.
+
+      ** It can be used multiple times.
+    action: |
+      Let's use find to list everything in your home directory except for the directories.
+      
+      find ~ -not -type d
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-size)
+    description: |
+      The `-size` option searches for files of a particular size. You can specify
+      the size with suffixes: `c` (bytes), `k` (kilobytes), `M` (megabytes), `G` (gigabytes).
+      You can also use `+` for "larger than" or `-` for "smaller than".
+    action: |
+      Run the following command to find files in `/boot` that are larger than 10MB.
+      
+          sudo find /boot -size +10M
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-mtime, -ctime, -atime)
+    description: |
+      You can search for files based on their timestamp.
+      
+      - `-mtime`: Modified time (when the file's content was last changed).
+      - `-ctime`: Change time (when the file's metadata was last changed).
+      - `-atime`: Access time (when the file was last read).
+    action: |
+      Let's find all files in your home directory that were modified in the last 24 hours.
+      
+      find ~ -mtime -1
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-type)
+    description: |
+      The `-type` option searches for files of a specific type.
+      
+      - `f`: Regular file
+      - `d`: Directory
+      - `l`: Symbolic link
+      
+      You can use this to differentiate between files and folders.
+    action: |
+      Run `find` to find all directories in your home directory.
+      
+          find ~ -type d
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-links)
+    description: |
+      The `-links` option finds files with a specified number of hard links.
+      This is useful for locating hard links that point to the same inode.
+    action: |
+      Find all files in `/etc` that have more than 2 hard links.
+      
+          find /etc -links +2
+    verification: SKIP_CHECK
+    exit_code: 0
+
+  - name: Using the find command (-delete)
+    description: |
+      The `-delete` action deletes files that match your search criteria.
+      This is an extremely powerful and potentially dangerous option.
+      It's best practice to always run the `find` command without `-delete` first to
+      confirm you are targeting the correct files.
+    action: |
+      1. Create a temporary file in your home directory:
+         `touch ~/tempfile.txt`
+      2. Verify that it exists:
+         `ls ~/tempfile.txt`
+      3. Now, use find to search for and delete it:
+         `find ~ -name "tempfile.txt" -delete`
+    verification: find ~ -name "tempfile.txt" -print -quit
+    exit_code: 1
+
+  - name: Using the find command (-exec)
+    description: |
+      The `-exec` option is one of the most powerful features of `find`. It
+      allows you to execute a command on each file that is found. The `{}`
+      is a placeholder for the filename, and a semicolon (escaped by a backslash)
+      or a plus sign `+` must be used to terminate the command.
+    action: |
+      Let's find all files in your home directory that have `.txt` and then
+      long list them.
+      
+      find ~ -name "*.txt" -exec ls -l {} \;
+    verification: SKIP_CHECK
+    exit_code: 0
+...
