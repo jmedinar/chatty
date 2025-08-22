@@ -5,18 +5,18 @@
 
 # Configuration
 APP_NAME="chatty"
-APP_VERSION="2.2" # Must match Version in chatty.spec
+APP_VERSION="2.3" # Must match Version in chatty.spec
 SPEC_FILE="${APP_NAME}.spec"
 SOURCE_DIR_NAME="${APP_NAME}-${APP_VERSION}"
 
 # Color Codes
 ColorReset="\033[0m"        # Color reset
 ColorGreen="\033[0;32m"     # Color Green
-ColorRed="\033[0;31m"     # Color Red
-ColorBlue="\033[0;34m"     # Color Blue
-ColorYellow="\033[0;33m"     # Color Yellow
-ColorPurple="\033[0;35m"     # Color Purple
-ColorCyan="\033[0;36m"     # Color Cyan
+ColorRed="\033[0;31m"       # Color Red
+ColorBlue="\033[0;34m"      # Color Blue
+ColorYellow="\033[0;33m"    # Color Yellow
+ColorPurple="\033[0;35m"    # Color Purple
+ColorCyan="\033[0;36m"      # Color Cyan
 
 clear
 
@@ -32,7 +32,7 @@ echo -e "${ColorYellow}Checking for 'rpmbuild' command...${ColorReset}"
     if ! command -v rpmbuild &> /dev/null; then
         echo -e "       ${ColorRed}Error: 'rpmbuild' command not found.${ColorReset}"
         echo -e "       ${ColorRed}Please install it using: sudo dnf install rpm-build${ColorReset}"
-        exit 1 # Exit if rpmbuild is not found
+        exit 1
     fi
     echo -e "       ${ColorBlue}'rpmbuild' found. Proceeding with build.${ColorReset}"
 
@@ -62,7 +62,7 @@ echo -e "${ColorYellow}Creating source tarball...${ColorReset}"
 
     # Create the tarball from the temporary root directory, archiving SOURCE_DIR_NAME
     tar -czf "${RPMBUILD_DIR}/SOURCES/${APP_NAME}-${APP_VERSION}.tar.gz" -C "${TEMP_SOURCE_ROOT}" "${SOURCE_DIR_NAME}"
-    rm -rf "${TEMP_SOURCE_ROOT}" # Clean up the temporary source root directory
+    rm -rf "${TEMP_SOURCE_ROOT}"
     echo -e "       ${ColorBlue}Source tarball created: ${RPMBUILD_DIR}/SOURCES/${APP_NAME}-${APP_VERSION}.tar.gz${ColorReset}"
 
 echo -e "${ColorYellow}Copying .spec file to SPECS directory...${ColorReset}"
@@ -78,11 +78,14 @@ echo -e "${ColorYellow}Cleaning up build artifacts...${ColorReset}"
     fi
     mv ${RPMBUILD_DIR}/RPMS/noarch/${APP_NAME}-${APP_VERSION}*.rpm ./RPMS/
     rm -rf ${RPMBUILD_DIR}
+    # Promoting last build as latest
+    cp ./RPMS/${APP_NAME}-${APP_VERSION}*.rpm ./RPMS/${APP_NAME}-latest.rpm
+
     # Rotating old rpm files
     PKGS=($(ls -t RPMS/*.rpm))
-    while [ ${#PKGS[@]} -gt 2 ]
+    while [ ${#PKGS[@]} -gt 3 ]
     do
-        rm -rf ${PKGS[-1]}
+        rm -rf ${PKGS[-2]}
         PKGS=($(ls -t RPMS/*.rpm))
     done
 
