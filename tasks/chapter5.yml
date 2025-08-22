@@ -13,11 +13,10 @@ tasks:
   - name: Learning to use the "su" command
     description: |
       The `su` (substitute user) command allows you to switch to another
-      user's account. This is a fundamental command for system administration
-      and troubleshooting.
+      user's account. 
       
       When used without an argument, it defaults to switching to the `root`
-      user. The `-` (dash) option tells `su` to simulate a full login,
+      user. The `-` (dash) option tells `su` to simulate a complete login,
       loading the new user's environment variables and home directory.
     action: |
       1. Use `su -` to switch to the `root` user. You will be prompted for the
@@ -30,15 +29,14 @@ tasks:
   - name: Learning to use the "sudo" command
     description: |
       The `sudo` (substitute user do) command allows an authorized user to
-      run a command as `root` without needing to switch to the `root` account.
-      This is the safest and most common way to perform administrative tasks.
+      run a command as `root` without switching to the `root` account.
     action: |
-      Let's use `sudo` to run a command that requires `root` privileges.
+      Use `sudo` to run a command that requires `root` privileges.
 
       1. First, try to read the `/etc/shadow` file without `sudo`. (It will fail).
          cat /etc/shadow
 
-      2. Now, run the same command using `sudo`. You'll be prompted for your
+      2. Run the same command using `sudo`. You'll be prompted for your
          own password.
          sudo cat /etc/shadow
     verification: SKIP_CHECK
@@ -60,11 +58,12 @@ tasks:
          
          root ALL=(ALL:ALL) ALL
          
-         This line means the `root` user can run any command on any host as any user.
+         Meaning:
+         (`root` can run any commands on any host as any user)
 
       4. Exit `visudo`:
-          - use the key combination `Ctrl+X` if using nano
-          - use the key combination `Esc+:+q!` if using vim
+          - Use the key combination `Ctrl+X` if using nano
+          - Use the key combination `Esc+:+q!` if using vim
     verification: SKIP_CHECK
     exit_code: 0
   
@@ -74,8 +73,8 @@ tasks:
       and their sessions on the system.
       
       - `lslogins`: Lists information about users.
-      - `id`: Displays the user ID (UID) and group ID (GID).
-      - `who`: Shows who is currently logged into the system.
+      - `id`:       Displays the user ID (UID) and group ID (GID).
+      - `who`:      Shows who is currently logged into the system.
     action: |
       1. Run `lslogins` to see a list of all users on the system.
       2. Use `id` to check your own user ID and group ID.
@@ -92,7 +91,7 @@ tasks:
       
       Understanding this file is essential for managing user accounts on a Linux system.
     action: |
-      1. Open the `/etc/passwd` file using `view`:`:
+      1. Open the `/etc/passwd` file using `view`:
             view /etc/passwd
 
       2. Observe the structure of each line and the fields it contains.
@@ -135,16 +134,17 @@ tasks:
   
   - name: Creating users "useradd"
     description: |
-      The `useradd` command is used to create new user accounts on a Linux system.
-      It allows you to specify various options such as the user's home directory,
-      shell, and group memberships.
+      The `useradd` command creates new user accounts on a Linux system.
+
+      It allows you to specify various options, such as the user's home
+      directory, shell, and group memberships.
 
       See all available options with: `useradd --help`
     action: |
       1. Use the following command to create a new user:
               sudo useradd -s /bin/bash user1
 
-         This creates a user named `user1` and sets the default shell to bash.
+         Creates a user named `user1` and sets the default shell to bash.
 
       2. Create "user2" specifying a home directory, shell, user ID, and info:
          sudo useradd -d /home/user2 -s /bin/bash -u 10002 -c "User Two" user2
@@ -175,8 +175,9 @@ tasks:
   
   - name: Deleting users "userdel"
     description: |
-      The `userdel` command is used to delete user accounts from the system.
-      You can remove a user and optionally their home directory and files.
+      The `userdel` command deletes user accounts from the system.
+
+      You can optionally delete the home directory and files.
 
       See all available options with: `userdel --help`
     action: |
@@ -193,8 +194,7 @@ tasks:
   
   - name: Creating groups "groupadd"
     description: |
-      The `groupadd` command is used to create new groups on a Linux system.
-      Groups are essential for managing permissions and access control.
+      The `groupadd` command creates new groups on a Linux system.
 
       See all available options with: `groupadd --help`
     action: |
@@ -208,7 +208,7 @@ tasks:
   
   - name: Modifying groups "groupmod"
     description: |
-      The `groupmod` command is used to modify existing groups. You can change
+      The `groupmod` command modifies existing groups. You can change
       a group's name, GID, and other attributes.
 
       See all available options with: `groupmod --help`
@@ -223,9 +223,8 @@ tasks:
 
   - name: Adding users to groups "usermod -aG"
     description: |
-      The `usermod -aG` command is used to add a user to one or more groups
-      without removing them from their current groups. This is useful for granting
-      additional permissions to users.
+      The `usermod -aG` command adds users to one or more groups
+      without removing them from their current groups.
     action: |
       1. Add `user1` to the `devs` group:
           sudo usermod -aG devs user1
@@ -240,8 +239,7 @@ tasks:
   
   - name: Deleting groups "groupdel"
     description: |
-      The `groupdel` command is used to delete groups from the system. It removes
-      the group entry from the `/etc/group` file.
+      The `groupdel` command deletes groups from the system.
 
       See all available options with: `groupdel --help`
     action: |
@@ -255,12 +253,12 @@ tasks:
   
   - name: Setting user passwords "passwd"
     description: |
-      The `passwd` command is used to set or change a user's password.
+      The `passwd` command sets or changes a user's password.
 
       Only the user themselves or the `root` user can change a user's password.
 
-      When changing your own user's password, you will be prompted to enter
-      the current password followed by the new password twice for confirmation.
+      When changing your user's password, you will be prompted to enter
+      the current password, followed by the new password twice for confirmation.
     action: |
       1. Change the password for `user1`:
           sudo passwd user1
@@ -279,8 +277,9 @@ tasks:
   
   - name: Controlling password aging "chage"
     description: |
-      The `chage` command is used to control password aging for user accounts.
-      It allows you to set when a password must be changed, how long it can be
+      The `chage` command controls password aging for user accounts.
+
+      Allows you to set when a password must be changed, how long it can be
       used, and when the account will expire.
 
       The most common options are:
@@ -293,8 +292,8 @@ tasks:
       1. Set password aging for `user1`:
           sudo chage -M 90 -m 7 -W 14 user1
 
-         This sets the maximum age to 90 days, minimum age to 7 days, 
-         and warning period to 14 days.
+         Sets the maximum age to 90 days, minimum age to 7 days, 
+         and a warning period to 14 days.
 
       2. Verify the settings by running:
           sudo chage -l user1
@@ -303,25 +302,21 @@ tasks:
   
   - name: Environment configuration files
     description: |
-      Environment configuration files are used to set system-wide or user-specific
+      Environment configuration files set system-wide or user-specific
       environment variables and shell settings. 
       
       System-wide files include:
       - `/etc/environment`: Sets system-wide environment variables.
       - `/etc/profile`: Configures the shell environment for all users.
 
-      User-specific files include: (notice they are located in the user's home directory)
-      - `~/.bashrc`: Configures the shell environment for interactive non-login shells.
-      - `~/.profile`: Configures the shell environment for login shells, used by some distributions.
-      
-      These files can be edited to customize the shell environment.
+      User-specific file: (located in the user's home directory)
+      - `~/.bashrc`: Configures the shell environment.
     action: |
       1. Open the `~/.bashrc` file in your preferred text editor:
             nano ~/.bashrc
 
-      2. Add or modify environment variables, aliases, or functions as needed.
-         For example, we will make an alias for the `ls -l` command so that it
-         call the `ll` command it will print the output in a long listing format:
+      2. Add or modify environment variables, aliases, or functions.
+         For example, make alias `ll` for the `ls -l` command:
 
           alias ll='ls -l'
 
@@ -341,7 +336,7 @@ tasks:
       configure various aspects of the shell and applications.
       
       Common environment variables include:
-      - `PATH`: Specifies directories to search for executable files.
+      - `PATH`: Specifies directories that can search for executable files.
       - `HOME`: The user's home directory.
       - `USER`: The current user's username.
     action: |
@@ -351,7 +346,7 @@ tasks:
       2. To set a new environment variable, use:
           export FRUIT="apples"
 
-         (To make it persistent, add it to your `~/.bashrc` file.)
+         (Add it to your `~/.bashrc` file to make it persistent.)
 
       3. Verify the variable is set by running:
           echo $FRUIT
@@ -361,8 +356,8 @@ tasks:
   - name: Shell variables
     description: |
       Shell variables are similar to environment variables but are specific to the
-      current shell session. They can be used to store temporary values or settings
-      that do not need to persist across sessions.
+      current shell session. They can store temporary values or settings that do 
+      not need to persist across sessions.
       
       Common shell variables include:
       - `$PS1`: The primary prompt string.
@@ -384,28 +379,25 @@ tasks:
   
   - name: Reconfigure your shell prompt
     description: |
-      The shell prompt can be customized to display various information such as
-      the current user, hostname, and working directory. This is done by modifying
-      the `PS1` variable in your shell configuration file (e.g., `~/.bashrc`).
+      Customize your prompt to display information such as the current user,
+      hostname, and working directory, by modifying the `PS1` variable
       
-      A common format for `PS1` is:
-      ```
-      PS1='\u@\h:\w\$ '
-      ```
-      This displays the username, hostname, and current working directory.
+      A common format for `PS1` is:      PS1='\u@\h:\w\$ '
+
+      Displays the username, hostname, and current working directory.
     action: |
       1. We will temporarily change the shell prompt to include the current time.
 
          export PS1='\t \u@\h:\w\$ '
 
-         This will show the time in HH:MM:SS format before the prompt.
+         Will show the time in HH:MM:SS format before the prompt.
 
-      2. Let's add color and icons to the prompt for better visibility.
+      2. Add color and icons to the prompt for better visibility.
          We will use the `\[\e[0;32m\]` for green text and `\[\e[0m\]` to reset color.
 
          export PS1='\[\e[0;32m\]\u@\h:\w\[\e[0m\]\$ '
 
-      3. Now let's put some icons in the prompt.
+      3. Put some icons in the prompt.
          We will use `\[\e[0;34m\]` for blue text and add a star icon.
 
          export PS1='\[\e[0;34m\]★ \u@\h:\w\[\e[0m\]\$ '         
@@ -415,8 +407,7 @@ tasks:
   - name: Reconfigure your default editor
     description: |
       The default editor can be set to your preferred text editor, such as `nano`,
-      `vim`, or `emacs`. This is useful for editing configuration files and other
-      text files from the command line.
+      `vim`, or `gnome-text-editor`. 
       
       The default editor is usually set using the `EDITOR` environment variable.
     action: |
@@ -426,7 +417,7 @@ tasks:
       2. Set your default editor to `nano` by running:
           export EDITOR=nano
 
-      3. To make this change persistent, add it to your `~/.bashrc` file
+      3. To make it persistent, add it to your `~/.bashrc` file
     verification: grep -qw "export EDITOR=nano" ~/.bashrc 2> /dev/null
     exit_code: 0
   
@@ -462,26 +453,27 @@ tasks:
     action: |
       1. Check your current `PATH` by running:
             echo $PATH
-      2. Let's add a new "scripts" directory in your home Directory:
+      2. Add a new "scripts" directory in your home Directory:
             mkdir -p ~/scripts
-      3. Create a sample script in this directory with the following content:
+      3. Create a script in the `~/scripts` directory
+           vim ~/scripts/myhello
+      4. Add the following content to the script
             #!/bin/bash
             echo Hello from your script!
-      4. Save it as `myhello` in the `~/scripts` directory, and make it executable:
+      5. Save it, and make it executable:
             chmod +x ~/scripts/myhello 
       5. From your home directory, try running the script by name:
             myhello
         (It will fail because the directory is not in your `PATH` yet)
       6. Add this directory to your `PATH` by running:
             export PATH=$PATH:~/scripts
-      7. Now try running the script again:
+      7. Try running the script again:
             myhello
-      8. To make this change persistent, add it to your `~/.bashrc` file:
+      8. To make it persistent, add it to your `~/.bashrc` file:
          echo "export PATH=\$PATH:~/scripts" >> ~/.bashrc
       
-      From now on, any new script you place in the `~/scripts` directory
-      will be executable from anywhere in the system.
-    verification: 
+      New scripts in the `~/scripts` directory will be system-wide reachable.
+    verification: SKIP_CHECK
     exit_code: 0
   
 ...

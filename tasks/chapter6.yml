@@ -10,10 +10,11 @@ title: Chapter 6
 section: 
 tasks:
 
-  - name: Learning the vim editor (command mode)
+  - name: Learning the Vim editor (command mode)
     description: |
-      The vim editor is a powerful text editor available on most Unix systems.
-      it uses different modes:
+      The Vim editor is a powerful text editor available on most Unix systems.
+      
+      Vim uses different modes:
 
         - Command mode: for navigation and commands
         - Insert mode: for text input
@@ -25,7 +26,8 @@ tasks:
         - `Esc + i`   Enter insert mode
         - `Esc + v`   Enter visual mode
     action: |
-      To use `command mode` in vim, follow these steps:
+      To use `command mode` in Vim, follow these steps:
+
         1. Open a file with vim: `vim filename`
         2. Press `Esc` to ensure you exit all modes
         3. Press `:` to enter command mode
@@ -41,25 +43,25 @@ tasks:
     verification: SKIP_CHECK
     exit_code: 0
 
-  - name: Learning the vim editor (insert mode)
+  - name: Learning the Vim editor (insert mode)
     description: |
       In `insert mode`, you can type text into the file.
       To enter insert mode, press `i` while in no mode.
     action: |
-      To use `insert mode` in vim, follow these steps:
+      To use `insert mode` in Vim, follow these steps:
         1. Open a file with vim: `vim learning_vim.txt`
         2. Press `Esc` to ensure you exit all modes
         3. Press `i` to enter insert mode
         4. Type the text
             "This is a test file for learning vim."
         5. Save your changes by pressing `Esc` to exit insert mode, 
-           then type `:wq` to write and quit and press `Enter`
+           then type `:wq` to write and quit, and press `Enter`
     verification: grep -q "learning vim" learning_vim.txt
     exit_code: 0
 
-  - name: Learning the vim editor (visual mode)
+  - name: Learning the Vim editor (visual mode)
     description: |
-      In `visual mode`, you can select text for copying or deleting.
+      In `visual mode`, you can select text to copy or delete.
 
       There are different types of visual modes:
         - Character-wise visual mode (default, activated with `v`)
@@ -82,11 +84,11 @@ tasks:
     verification: ls -l vim_test.txt 2>/dev/null && grep -q "root" vim_test.txt
     exit_code: 0
 
-  - name: Learning the vim editor (cut/paste)
+  - name: Learning the Vim editor (cut/paste)
     description: |
-      In `visual mode`, you can also cut text instead of copying it.
-      To cut text, select it in visual mode and press `x`.
-      To paste, move the cursor to the desired location and press `p`.
+      In `visual mode`, you can cut text instead of copying it.
+      Select it in visual mode and press `x` to cut.
+      Move the cursor to the desired location and press `p` to paste.
     action: |
       1. Open the vim_test.txt file with vim: 
           vim vim_test.txt
@@ -100,11 +102,12 @@ tasks:
     verification: SKIP_CHECK
     exit_code: 0
 
-  - name: Learning the vim editor (search and replace)
+  - name: Learning the Vim editor (search and replace)
     description: |
       Vim provides powerful search and replace functionality.
       You can search for text using `/` followed by the search term.
-      To replace text, use the `:s` (substitute) command.
+      Use the `:s` (substitute) command to replace the text.
+
       For example, to replace "old" with "new":
         :s/old/new/g    replaces in the current line
         :%s/old/new/g   replaces in the entire file.
@@ -125,7 +128,7 @@ tasks:
     verification: SKIP_CHECK
     exit_code: 0
 
-  - name: Learning the vim editor (undo/redo)
+  - name: Learning the Vim editor (undo/redo)
     description: |
       Vim allows you to undo and redo changes.
 
@@ -142,9 +145,9 @@ tasks:
     verification: SKIP_CHECK
     exit_code: 0
 
-  - name: Learning the vim editor (deleting)
+  - name: Learning the Vim editor (deleting)
     description: |
-      In vim, you can delete text using the `d` command.
+      In Vim, you can delete text using the `d` command.
       To delete a line, use `dd`
       To delete a word, use `dw`
       To delete from the cursor to the end of the line, use `d$`
@@ -171,7 +174,7 @@ tasks:
 
       For example, 
       
-        `#!/bin/bash` indicates that the script should be using the Bash shell.
+        `#!/bin/bash` indicates that the script should use the Bash shell.
     action: |
       1. Create a new script file:
             vim ~/script.sh
@@ -179,7 +182,7 @@ tasks:
             #!/bin/bash
       3. Add a simple command
             ls -l
-      4. Save and exit vim
+      4. Save and exit Vim
     verification: grep -q "bash" ~/script.sh
     exit_code: 0
 
@@ -238,7 +241,7 @@ tasks:
          
             echo $my_variable
 
-      4. Save and exit vim
+      4. Save and exit Vim
       5. Run the script:
 
             ~/script.sh
@@ -263,7 +266,7 @@ tasks:
             echo 'This is a single-quoted string'`
             echo "This is a double-quoted string with a variable: $my_variable"
 
-      3. Save, exit and run the script:
+      3. Save, exit, and run the script:
 
             ~/script.sh
     verification: grep -q "single-quoted" ~/script.sh && grep -q "double-quoted" script.sh
@@ -286,19 +289,17 @@ tasks:
       1. Add a command substitution example to the ~/script.sh file:
             current_date=$(date)
             echo "Current date and time: $current_date"
-      3. Save, exit and run the script:
+      3. Save, exit, and run the script:
             ~/script.sh
     verification: grep -q "Current date" ~/script.sh
     exit_code: 0
 
   - name: Shell Scripting - Exit Codes
     description: |
-      Exit codes are used to indicate the success or failure of a command or script.
-      By convention, an exit code of `0` indicates success, while any non-zero an error.
-      You can use the `exit` command to specify an exit code in your script.
+      Exit codes indicate the success or failure of a command or script.
 
-            exit 0   # Success            or            exit 1   # Error
-      
+      An exit code of `0` indicates success, while non-zero indicates error.
+
       Check the exit code of the last executed command using the special variable `$?`.
     action: |
       1. Add the following exit code example to the ~/script.sh file, to verify if the
@@ -311,7 +312,7 @@ tasks:
             fi
       2. Add an exit code example to the end of ~/script.sh file:
             exit 0
-      2. Save, exit and run the script:
+      2. Save, exit, and run the script:
             ~/script.sh
       3. Check the exit code of the last command:
             echo $?
@@ -320,9 +321,8 @@ tasks:
 
   - name: Shell Scripting - Line Arguments and positional parameters
     description: |
-      Line arguments are used to pass values to a script when it is executed.
+      Line arguments pass values to a script when it is executed.
       You can access these arguments using positional parameters `$1`, `$2`, etc.
-      For example, if you run a script with 
       
           ~/script.sh arg1 arg2
           
@@ -334,7 +334,7 @@ tasks:
             echo "Number of arguments: $#"
             echo "All arguments: $@"
             echo "last argument: ${!#}"
-      3. Save, exit and run the script with arguments:
+      3. Save, exit, and run the script with arguments:
             ~/script.sh taco pizza pasta
       4. Check the output to verify the arguments were printed correctly
     verification: grep -q taco ~/script.sh && grep -q pizza ~/script.sh
@@ -351,12 +351,12 @@ tasks:
       Both commands will store the result of the addition in the `result` variable.
     action: |
       1. Add a mathematical operation example to the ~/script.sh file:
-          (be sure to do it before the "exit 0" line added in the previous task)
+          (Be sure to do it before the "exit 0" line added in the previous task)
 
               result=$((5 + 3))
               echo "Result of addition: $result"
 
-      3. Save, exit and run the script:
+      3. Save, exit, and run the script:
             ~/script.sh
     verification: grep -q "addition" ~/script.sh
     exit_code: 0

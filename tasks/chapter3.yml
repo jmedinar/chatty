@@ -12,11 +12,12 @@ tasks:
 
   - name: Using the grep command
     description: |
-      The `grep` command (Global Regular Expression Print) is an essential
-      tool for searching plain-text data sets for lines that match a regular
-      expression. It is most often used to filter the output of other commands.
+      The `grep` command (Global Regular Expression Print) is essential for
+      searching plain-text data sets for lines that match a regular expression.
+      
+      It is most often used to filter the output of other commands.
     action: |
-      Let's use `grep` to find lines containing "root" in the `/etc/passwd` file.
+      Use `grep` to find lines containing "root" in the `/etc/passwd` file.
       
           grep root /etc/passwd
     verification: SKIP_CHECK
@@ -25,7 +26,6 @@ tasks:
   - name: Using grep ignoring case sensitivity
     description: |
       The `-i` option allows `grep` to ignore case when searching for patterns.
-      This is useful when you want to match text regardless of its case.
     action: |
       Use `grep` with the `-i` option to find lines containing "root" in the
       `/etc/ssh/sshd_config` file, ignoring case.
@@ -37,7 +37,7 @@ tasks:
   - name: Using grep inverting the match
     description: |
       The `-v` option inverts (reverse) the match, showing lines that do not match the
-      specified pattern. This is useful for filtering out unwanted lines.
+      specified pattern, filtering out unwanted lines.
     action: |
       Use `grep -v` to find lines in the `/etc/passwd` file that do not contain
       the "nologin" shell.
@@ -51,7 +51,7 @@ tasks:
       `grep` supports regular expressions, allowing for complex pattern matching.
       
       We will explore more regular expression features in later chapters, but for now,
-      let's explore some basic regex patterns with `grep`.
+      explore some basic regex patterns with `grep`.
     action: |
       Find lines in the `/etc/passwd` file that:
         1. Contain a username starting with "a" followed by any characters.
@@ -84,45 +84,35 @@ tasks:
 
   - name: Using grep to parse command output
     description: |
-      The command `grep` can be used to filter the output of other commands.
-
-      This is particularly useful for narrowing down results from commands that produce
-      large amounts of output or when you want to focus on specific information.
+      The command `grep` can filter the output of other commands, narrowing
+      down results from commands that produce large amounts of output to 
+      focus on specific information.
       
     action: |
-      We will filter the output of the free command to get only the total memory
-      information.
+      We will filter the free command to get only the total memory information.
 
           free -h | grep "Mem" | awk '{print $2}'
 
-      NOTE: The `awk` command is used here to extract the second column from the output,
-      which contains the total memory size. The `grep` command filters the output to
-      include only the line containing "Mem".
+          (We extracted the second column from the output.)
 
-      Let's also use `grep` to parse the output of the `df -h` command to find the
-      available disk space on the root filesystem.
+      Use `grep` to parse the output of the `df -h` command to find available 
+      disk space on the root filesystem "/" and print only the fourth column.
 
           df -h | grep "/$" | awk '{print $4}'
-
-      NOTE: The `awk` command is used here to extract the fourth column from the output,
-      which contains the available disk space on the root filesystem. The `grep` command
-      filters the output to include only the line containing the root filesystem (`/`), by
-      making use of the `/$` pattern, which matches the "/" character at the "$" end of the line.
 
     verification: SKIP_CHECK
     exit_code: 0
 
   - name: Using grep with multiple files
     description: |
-      `grep` can search through multiple files at once, which is useful for finding
-      patterns across different files or directories.
+      `grep` can search multiple files simultaneously, finding patterns
+      across different files or directories.
     action: |
       Use `grep` to search for the term "root" in all files in the `/etc` directory.
 
           grep root /etc/*
 
-      This can also be done recursively to search through all files in the `/etc`
-      directory and its subdirectories.
+      Add `-r` to search the `/etc` directory and subdirectories.
 
           grep release -r /etc/*
 
@@ -131,79 +121,66 @@ tasks:
 
   - name: Command line expansions - The full stop (`.`)
     description: |
-      The full stop (`.`) is a special character in the command line that can be used
-      to refer to the current directory. It is often used in commands to specify the
-      current directory as a target for operations.
+      The full stop (`.`) is a special character to refer to the current directory.
 
       I like to call it "here".
       
-      For example, you can use `.` with `ls` to list files in the current directory:
+      Use `.` with `ls` to list files in the current directory:
           ls .
-
-      You can also use `.` with `cp` to copy files to the current directory:
-          cp /path/to/source/file.txt .
-      This command copies `file.txt` from the specified path to the current directory.
     action: |
       Make a copy of the `/etc/passwd` file to the current directory using the `.` character.
       
           cp /etc/passwd .
 
-      Repeat the copy operation, but time renaming the file to `my_passwd.txt`:
+      Repeat the copy operation renaming the file to `my_passwd.txt`:
       
           cp /etc/passwd ./my_passwd.txt
-    verification: ls -l ./my_passwd.txt
+    verification: SKIP_CHECK
     exit_code: 0
 
   - name: Command line expansions - The tilde (`~`)
     description: |
-      The tilde (`~`) is a special character in the command line that represents the
-      home directory of the current user. It is often used to quickly navigate to the
-      home directory or to specify paths relative to the home directory.
-      For example, you can use `~` with `cd` to change to the home directory:
-          cd ~ 
+      The tilde (`~`) character in the command line represents the home directory
+      of the current user. It is often used to quickly specify paths relative
+      to the home directory.
     action: |
       Use the tilde (`~`) to copy the `/etc/motd` file to your home directory.
-      
           cp /etc/motd ~/motd.txt
 
-      Now, let's create a new file in your home directory using the tilde (`~`) to
-      specify the path. Use the `touch` command to create a file named `my_first_file.txt`
-      in your home directory.
-      
+      Create a new file in your home directory using the tilde (`~`)
           touch ~/my_first_file.txt
     verification: ls -l ~/my_first_file.txt
     exit_code: 0
 
   - name: Command line expansions - The double dot (`..`)
     description: |
-      The double dot (`..`) is a special character in the command line that represents
-      the parent directory of the current directory. It is often used to navigate up
-      one level in the directory hierarchy.
+      The double dot (`..`) character in the command line represents the parent
+      directory relative to the current directory.
       
-      For example, you can use `..` with `cd` to change to the parent directory:
+      Use `..` with `cd` to change to the parent directory:
           cd ..
 
-      You can also use `..` with `ls` to list files in the parent directory:
+      Use `..` with commands to target the parent directory:
           ls ..
     action: |
-      Starting from your home directory, create a new directory named `test_dir`
-      and then navigate into it.
+      At your home, create a new directory named `test_dir`, and navigate into it.
 
           mkdir ~/test_dir
           cd ~/test_dir
 
-      Use the double dot (`..`) to copy the `/etc/resolv.conf` file to the home directory.
+      Copy the `/etc/resolv.conf` file to your home directory using `..`
       
           cp /etc/resolv.conf ../resolv.conf
 
-      List the file in the parent directory, and the test_dir 
+      List the file `resolv.conf` in the parent directory, along with the 
+      `test_dir` (current directory).
 
-        ls -l ../resolv.conf ../test_dir
+        ls -l ../resolv.conf .
 
-      Notice that the `resolv.conf` file is now in your home directory, and the `test_dir`
-      directory is still empty.
+      The `resolv.conf` copy is now in your home directory, while the `test_dir`
+      directory remains empty.
       
-    verification: ls -l ../resolv.conf
+    verification: ls -l ~/resolv.conf
     exit_code: 0
 
   - name: Wildcards - The asterisk (`*`)
@@ -219,7 +196,7 @@ tasks:
 
           ls *.txt /etc
 
-      Use it to list only files with the patter `conf` somewhere in the name:
+      Use it to list only files with the pattern `conf` somewhere in the name:
 
           ls *conf* /etc
     verification: SKIP_CHECK
@@ -228,7 +205,6 @@ tasks:
   - name: Wildcards - The question mark (`?`)
     description: |
       The question mark (`?`) is a wildcard character that matches exactly one character.
-      It is often used to match specific characters in filenames or patterns.
     action: |
       Use `?` with `ls` to list files and directories in the `/etc` directory 
       that have exactly three characters in their names:
@@ -246,50 +222,50 @@ tasks:
   - name: Wildcards - The start (`^`) and end (`$`) anchors
     description: |
       The start (`^`) and end (`$`) anchors are used in regular expressions to match
-      the beginning and end of a line, respectively. They are often used to specify
-      patterns that must match the entire line.
+      the beginning and end of a line, respectively.
       
       For example, `^abc` matches lines that start with "abc", and `xyz$` matches lines
       that end with "xyz".
     action: |
       Use `^` to find lines in the `/etc/passwd` file that start with "root":
-
           grep "^root" /etc/passwd
 
       Use `$` to find lines in the `/etc/passwd` file that end with "nologin":
-
           grep "nologin$" /etc/passwd
+
+      Use `^` and `$` to remove empty and commented lines from the `/etc/ssh/sshd_config`.
+          sudo grep -vE '^#|^$' /etc/ssh/sshd_config
     verification: SKIP_CHECK
     exit_code: 0
 
   - name: Pattern matching - The square brackets (`[]`)
     description: |
-      Square brackets (`[]`) are used in regular expressions to specify a character class,
-      which matches any single character within the brackets. This is useful for matching
-      specific sets of characters.
+      Square brackets (`[]`) are used in regular expressions to specify
+      a character class, which matches any single character within the 
+      brackets, matching specific character sets.
       
-      For example, `[aeiou]` matches any vowel, and `[0-9]` matches any digit.
+      For example, `[aeiou]` matches any vowel, and `[0-9]` any digit.
     action: |
-      Use `[]` to find lines in the `/etc/passwd` file that contain a username with
-      a vowel as the second character:
+      Find lines in the `/etc/passwd` file with a vowel as the second character:
 
           grep "^.[aeiou]" /etc/passwd
 
-      Use `[]` to find lines in the output of the `df -h` command that contain a file 
-      system with two or more digits in the Use% column:
+      Find lines in the output of the `df -h` command with two or more 
+      digits in the `Use%`` column:
 
           df -h | grep "[0-9][0-9]%"
 
+      (Only the Use% column makes use of the '%' character.)
     verification: SKIP_CHECK
     exit_code: 0
     
   - name: Pattern matching - The POSIX character classes
     description: |
       POSIX character classes are a set of predefined character classes that can be used
-      in regular expressions to match specific types of characters. They are often used
-      to simplify complex patterns.
+      in regular expressions to match specific types of characters.
 
       Some common POSIX character classes include:
+
       - `[[:alpha:]]`: Matches any alphabetic character (a-z, A-Z).
       - `[[:digit:]]`: Matches any digit (0-9).
       - `[[:alnum:]]`: Matches any alphanumeric character (a-z, A-Z, 0-9).
@@ -325,12 +301,8 @@ tasks:
       For example, you can use `{}` to create multiple files with a common prefix:
 
           touch file{1..5}.txt
-
-      This command creates five files named:
-      
-          `file1.txt`, `file2.txt`, `file3.txt`, `file4.txt`, and `file5.txt`.
     action: |
-      Create a hundred files named `test`, with the 'txt' extension in your home directory
+      Create a hundred files named `test`, with the 'txt' extension, in your home directory
       using the range expansion feature.
       
           touch ~/test{1..100}.txt
@@ -339,7 +311,7 @@ tasks:
       
           ls -l ~/test*.txt
 
-      Now, delete the files from 1 to 50 using the range expansion feature again.
+      Delete the files from 1 to 50 using the range expansion feature again.
       
           rm ~/test{1..50}.txt
 
@@ -347,7 +319,7 @@ tasks:
       
           ls -l ~/test*.txt
 
-      Finally, delete the remaining files using a wildcard pattern.
+      Delete the remaining files using a wildcard pattern.
       
           rm ~/test*.txt
     verification: SKIP_CHECK
@@ -355,28 +327,25 @@ tasks:
 
   - name: Understanding pipes
     description: |
-      The pipe (`|`) is a special character in the command line that allows you to
-      connect the output of one command to the input of another command.
-      
-      This is useful for chaining commands together to perform complex operations on data.
+      The pipe (`|`) allows you to connect the output of one command to 
+      the input of another command, helping perform complex operations on data.
 
       For example, you can use `|` to filter the output of a command using `grep`:
 
           ls -l | grep "txt"
 
-      This command lists all files in the current directory and then filters the output
-      to show only files with "txt" in their names.
+      The above example lists files, then filters txt files using `grep`.
     action: |
-      Use `grep` to parse lines containing "nologin" in the `/etc/passwd` file.
+      Use `grep` to parse "nologin" lines in the `/etc/passwd` file.
 
           grep nologin /etc/passwd
 
-      Now, let's narrow down the results by piping again to `grep` and filtering
+      Narrow down the results by piping again to `grep` and filtering
       lines that contain the "var" pattern.
       
           grep nologin /etc/passwd | grep var
 
-      Finally, pipe one more time to `wc -l` to count the number of lines:
+      Pipe one more time to `wc -l` to count the number of lines:
 
           grep nologin /etc/passwd | grep var | wc -l
     verification: SKIP_CHECK
@@ -386,19 +355,14 @@ tasks:
     description: |
       Redirection allows you to control where the output of a command goes.
       
-      You can redirect to a file overwriting or appending.
+      You can redirect to a file, overwrite it, or appending to it.
       
       Use `>` to redirect overwriting
-
           ls -l > output1.txt
-
-          This command saves the output of `ls -l` to the `output.txt` file.
 
       Use `>>` to redirect appending
           ls -l >> output2.txt
-          free -h >> output2.txt
 
-          Both commands append their output to the `output2.txt` file.
     action: |
       Use `grep` to find "root" in the `/etc/passwd` file and redirect
       the output to a file named `~/root_users.txt`.
@@ -409,7 +373,7 @@ tasks:
 
           cat ~/root_users.txt
 
-      Now, let's append a new line to the `root_users.txt` file and then
+      Append a new line to the `root_users.txt` file and then
       include lines that contain "nologin" in the `/etc/passwd` file.
 
           echo "" >> ~/root_users.txt
@@ -429,15 +393,13 @@ tasks:
       Use `<` to redirect input from a file:
 
           sort < input.txt
-
-      This command sorts the contents of `input.txt` and displays the sorted output.
     action: |
-      Let's extract only the usernames from the `/etc/passwd` to a file in 
+      Extract only the usernames from the `/etc/passwd` to a file in 
       your home directory.
 
           cut -d: -f1 /etc/passwd > ~/mypasswd.txt
       
-      Now, use input redirection to sort the contents of the `~/mypasswd.txt` file.
+      Use input redirection to sort the contents of the `~/mypasswd.txt` file.
 
           sort < ~/mypasswd.txt
       
@@ -466,7 +428,7 @@ tasks:
       
           ls /etc > ~/etc_files.txt
 
-      Now, let's simulate an error by trying to list a non-existent directory
+      Simulate an error by trying to list a non-existent directory
       and redirect the error message to a file named `~/error_log.txt`.
 
           ls /non_existent_directory 2> ~/error_log.txt
@@ -485,25 +447,25 @@ tasks:
       It is commonly used to redirect errors when we want to ignore them 
       or remove them from the resulting output
     action: |
-      Try running a find command of txt files starting from the root directory
+      Try running a find command of txt files starting from the root directory.
 
           find / -name "*.txt" 
 
-      Notice, a lot of "permission denied" errors will appear, thats because 
-      we tried searching starting at the `/` directory and many of the directories
-      below can only be accessed by the 'root' user.
+      Notice, that many "permission denied" errors will appear because we 
+      tried searching at the `/` directory, and many of the directories
+      under it can only be accessed by the 'root' user.
 
-      Let's ignore those errors to the trash to ignore them.
+      Ignore those errors by redirecting them to the trash.
 
           find / -name "*.txt" 2> /dev/null
 
-      Notice, we used `stderr` channel (2) to the /dev/null
+      Notice, we used `stderr` channel `(2)` to the `/dev/null`
     verification: SKIP_CHECK
     exit_code: 0
     
   - name: Understanding the `tee` command
     description: |
-      The `tee` command reads standard input and writes it to both standard output
+      The `tee` command reads standard input and writes it to standard output
       and one or more files. It's often used with a pipe to capture the output
       of a command while also viewing it in the terminal.
 
@@ -515,7 +477,7 @@ tasks:
       2. Verify that the file was created
             ls -l list_from_tee.txt
 
-      2. Now, check the contents of the `file_list.txt` file.
+      2. Check the contents of the `file_list.txt` file.
             cat list_from_tee.txt
     verification: SKIP_CHECK
     exit_code: 0
@@ -528,7 +490,7 @@ tasks:
       1. Create a simple text file:
             echo "Hello, World!" > hello.txt
 
-      2. Now, use `cat` to display its content:
+      2. Use `cat` to display its content:
             cat hello.txt
     verification: SKIP_CHECK
     exit_code: 0
@@ -559,7 +521,7 @@ tasks:
   - name: Understanding the `uniq` command
     description: |
       The `uniq` command filters out duplicate lines from a file or standard input.
-      It requires that the duplicate lines be adjacent to each other, so it's
+      It requires that the duplicate lines be adjacent, so it's
       often used with `sort`.
     action: |
       1. Create a list with duplicate lines:
@@ -607,7 +569,7 @@ tasks:
       - `-f`: Specify the field to cut.
       - `-d`: Specify the delimiter.
     action: |
-      1. Let's create a temporary file that is formatted as a CSV:
+      1. Create a temporary file that is formatted as a CSV:
             echo "name,age,city" > users.csv
             echo "john,30,new york" >> users.csv
             echo "jane,25,london" >> users.csv
@@ -615,10 +577,10 @@ tasks:
       2. Print the file as is:
             cat users.csv
 
-      3. Now, use `cut` to display only the `name` field:
+      3. Use `cut` to display only the `name` field:
             cut -d',' -f1 users.csv
 
-         Notice, we use the `,` comma as delimitation character
+         Notice, we use the `,` comma as a delimitation character
          and requested the first field only.
     verification: SKIP_CHECK
     exit_code: 0
@@ -631,20 +593,20 @@ tasks:
 
       `awk '{print $1, $3}'` prints the first and third fields.
     action: |
-      1. Let's extract the `%Use` column from the `df -h` command:
+      1. Extract the `%Use` column from the `df -h` command:
             df -h | awk '{print $5}'
 
-      2. Now extract the First and the Fifth columns:
+      2. Extract the First and the Fifth columns:
             df -h | awk '{print $1, $5}'
       
-      By default `awk` uses the space as Field separator but we can
-      change this using the `-F` option.
+      By default, `awk` uses the space as field separator, but 
+      we can change it using the `-F` option.
 
       3. Using the `users.csv` file from the previous example:
-         use `awk` to print the first field:
+         Use `awk` to print the first field:
             awk -F',' '{print $1}' users.csv
 
-         Notice, we use the `,` comma as delimitation character
+         Notice that we use the `,` comma as a delimitation character.
 
       4. Use `awk` to print only the first and last columns:
             awk -F',' '{print $1, $3}' users.csv
@@ -654,7 +616,6 @@ tasks:
   - name: The `awk` language - Arithmetic
     description: |
       `awk` can perform simple arithmetic operations on numeric fields.
-      This is useful for calculating sums, averages, or other metrics.
     action: |
       1. Create a file with a list of numbers:
             echo -e "10\n20\n30\n40" > numbers.txt
@@ -665,10 +626,10 @@ tasks:
       3. Use `awk` to calculate the sum of the numbers:
             awk '{sum += $1} END {print sum}' numbers.txt
          
-         Notice, the operation occurs within the quotes and receives the
-         file as input. The operation is divided in two parts:
-            {sum += $1}       Loops thru the values and sums them up
-            END {print sum}   At the END of the loop it prints the sum.
+         Notice that the operation occurs within the quotes and receives
+         the file as input. The operation is divided into two parts:
+            - {sum += $1}       Loops through the values and sums them up.
+            - END {print sum}   At the END of the loop, it prints the sum.
 
         Other available operations are:
           - sum: To perform addition
@@ -681,8 +642,8 @@ tasks:
 
   - name: The `awk` language - Concatenation
     description: |
-      In `awk`, string concatenation is done by placing two strings next to
-      each other.
+      In `awk`, string concatenation is done by placing two strings next
+      to each other.
     action: |
       1. Create a file with names and departments:
             echo -e "john dev\njane ops" > employees.txt
@@ -722,14 +683,14 @@ tasks:
     description: |
       `printf` is a powerful function in `awk` for formatting output.
     action: |
-      Let's use `printf` to create a formatted table from the `/etc/passwd` file 
-      only of users that can login, printing only the username, and home directory.
+      Use `printf` to create a formatted table from the `/etc/passwd` file only
+      of users that can log in, printing only the username, and home directory.
     
           grep -v nologin /etc/passwd | awk -F':' '{printf "%-15s %-15s\n", $1, $6}'
 
       Notice: 
-        - Used a reversed grep of "nologin" to get users who can login.
-        - Used the ":" character as field separator
+        - Used a reversed grep of "nologin" to get users who can log in.
+        - Used the ":" character as a field separator
         - Taking fields $1 and $6 (username and home directory)
         - Used printf with the format `%-15s %-15s\n`, meaning:
               %   placement for value
@@ -749,9 +710,9 @@ tasks:
 
           sed 's/old_string/new_string/g'
 
-      where:
-        s calls the substitute function
-        g calls the global function 
+      Where:
+        - `s` calls the substitute function
+        - `g` calls the global function 
     action: |
       1. Create a simple text file:
             echo "The fox is fast." > fox.txt
@@ -767,8 +728,9 @@ tasks:
 
       5. Do it again without the `g` flag:
             sed 's/:/ /' login_users.txt
-         Notice, only the first occurrence of each line was affected
-         if the global flag was not used.
+
+         Notice that only the first occurrence of each line 
+         was affected if the global flag was not used.
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -780,7 +742,7 @@ tasks:
       1. Create a simple text file:
             echo "The quick brown fox." > sed_file.txt
 
-      2. Now, use `sed` to replace "fox" with "bear" and save the change
+      2. Use `sed` to replace "fox" with "bear" and save the change
          to the original file:
             sed -i 's/fox/bear/g' sed_file.txt
       
