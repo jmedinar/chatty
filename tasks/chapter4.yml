@@ -13,23 +13,18 @@ tasks:
   - name: Linux file types
     description: |
 
-      - Regular file Regular files are those without any imposed structure.
-      d Directory file contains named references to other files.
-      l Symbolic Link is a pointer to another file by name.
-      c Character device files let programs communicate with the system’s hardware.
-      s Local Domain Sockets allow processes to communicate locally and over the network.
-      p Named Pipes allow communication between two processes running on the same
-      b Block Device allow communication with storage hardware.
+      `-` Regular file are those without any imposed structure.
+      `d` Directory contains named references to other files.
+      `l` Link is a pointer to another file by name.
+      `c` Character Device let programs communicate with the hardware.
+      `s` Sockets allow processes to communicate locally and over the network.
+      `p` Pipes allow communication between two processes over the kernel.
+      `b` Block Device allow communication with storage hardware.
 
     action: |
-      The first character of an `ls -l` command's output indicates the file type:
-      Let's examine some different file types on your system.
+      The first character of an `ls -l` command's indicates the file type
 
-      View the contents of the `/dev/` and `/etc/` directories at the same time 
-      and we will filter the output using the `grep` command to show only specific 
-      types of files from the list.
-
-      use `grep` to look for specific types:
+      List `/dev/` and `/etc/` directories filtering specific file types:
 
         Look for regular files:          ls -l /dev/ /etc/ | grep ^-
 
@@ -75,14 +70,14 @@ tasks:
       - `%U`: owner name
       - `%G`: group name
 
-      Take a look at the `--help` option of `stat` to see the full list.
+      Look at the `--help` option of `stat` to see the full list.
     action: |
-      Let's use `stat` to display just the permissions, size, and filename
+      Use `stat` to display just the permissions, size, and filename
       of `/etc/passwd`.
 
       stat -c "%a %s %n" /etc/passwd
       
-      Now, let's add some formatting to make it more readable.
+      Add some formatting to make it more readable.
 
       stat -c "MODE: (%a) SIZE: (%s) FILE: (%n)" /etc/passwd
     verification: SKIP_CHECK
@@ -91,10 +86,8 @@ tasks:
   - name: Understanding file ownership and permissions (ls -l)
     description: |
       The `ls -l` command provides a detailed list of file information,
-      including a file's permissions, ownership, and group. This is crucial
-      for understanding who can read, write, or execute a file.
+      including a file's permissions, ownership, and group.
 
-      The output looks like this:
       -rwx------. 1 root root 1234 May 12 10:00 filename
 
       The sections are as follows:
@@ -103,16 +96,16 @@ tasks:
       
       Here's what each part means:
         - filetype: Represents the file type
-        - mode: File's permissions.
-        - links: Number of hard links
-        - owner: Owner of the file.
-        - group: Group of the file.
-        - size: Size of the file in bytes.
-        - date: Date and time the file was last modified.
+        - mode:     File's permissions.
+        - links:    Number of hard links
+        - owner:    Owner of the file.
+        - group:    Group of the file.
+        - size:     Size of the file in bytes.
+        - date:     Date and time the file was last modified.
         - filename: Name of the file.
       
     action: |
-      Let's use `ls -l` to check the ownership and permissions of a file.
+      Use `ls -l` to check the ownership and permissions of a file.
 
       ls -l /etc/passwd
     verification: SKIP_CHECK
@@ -120,13 +113,12 @@ tasks:
 
   - name: Changing file ownership
     description: |
-      The `chown` (change owner) command is used to change the user and/or
-      group ownership of a file or directory. This requires `sudo` or
-      root permissions.
+      The `chown` (change owner) command changes the user and/or
+      group ownership of a file or directory.
 
       The format is `chown <user>:<group> <file>`.
     action: |
-      Let's create a file and then change its ownership.
+      Create a file and then change its ownership.
 
       1. Create a file in your home directory:
          touch ~/my_test_file.txt
@@ -140,7 +132,7 @@ tasks:
       4. Use `ls -l` to confirm the ownership has changed.
          ls -l ~/my_test_file.txt
 
-      5. Let's rollback, only the group and then list:
+      5. Rollback, only the group, and then list:
          sudo chown :$USER ~/my_test_file.txt
          ls -l ~/my_test_file.txt
 
@@ -160,7 +152,7 @@ tasks:
         `a` (all)  
         
     action: |
-      Let's change the permissions of a file.
+      Change the permissions of a file.
         Tip: Verify the permissions using `ls -l` after each change.
 
       1. Create a new file:
@@ -181,7 +173,7 @@ tasks:
       6. Remove the execute permission from the user:
          chmod u-x ~/permissions_test.txt
 
-      7. Now make the permissions `--xrw--w-` in a single command:
+      7. Make the permissions `--xrw--w-` in a single command:
          chmod u=x,g=rw,o=w ~/permissions_test.txt
 
     verification: stat -c %a ~/permissions_test.txt | grep -q 162
@@ -190,8 +182,8 @@ tasks:
   - name: Changing file permissions using octal notation
     description: |
       Octal notation is another way to set file permissions with `chmod`.
-      We still represent three personas, user (u), group (g), and others (o)
-      But we use numbers, to represent permissions for each persona, where:
+      We still represent three personas: user (u), group (g), and others (o)
+      But we use numbers to represent permissions for each persona, where:
 
       read(r) = 4    write(w) = 2   execute(x) = 1
 
@@ -202,7 +194,7 @@ tasks:
         r-x for the group equals (4+1) = 5
         r-x for others equals (4+1) = 5
     action: |
-      Let's set a file to test using octal notation.
+      Set a file to test using octal notation.
       (Use `ls -l` to confirm the permissions after each change.)
 
       1. Create a new file:
@@ -226,11 +218,11 @@ tasks:
     description: |
       The `setuid` (Set User ID) special permission bit is used on executable
       files. When set, it allows a user to run the file with the permissions
-      of the file's owner, typically `root`. The `setuid` bit is represented
-      by an `s` in the owner's execute permission field (e.g., `-rwsr-xr-x`).
+      of its owner, typically `root`. The `setuid` bit is represented by 
+      an `s` in the owner's execute permission field (e.g., `-rwsr-xr-x`).
 
-      IMPORTANT: For security reasons `setuid` is not allowed on shell
-      scripts and its only honored in binary files.
+      IMPORTANT: For security reasons, `setuid` is not allowed on the shell
+      scripts and it's only honored in binary files.
     action: |
       1. Create the file `~/hello.cpp` in your text editor with the following content:
           #include <iostream>
@@ -249,7 +241,7 @@ tasks:
       3. Run the binary program: 
          ~/hello
 
-      4. Change the ownership to root and run it again:
+      4. Change the ownership to root and rerun it:
          sudo chown root:root ~/hello
          ~/hello
 
@@ -266,9 +258,12 @@ tasks:
       with the `setgid` bit set, it inherits the group ownership of that
       directory instead of the user's primary group.
       
-      This is useful for shared directories where all files should belong to
-      a single group. The `setgid` bit is represented by an `s` in the group's
-      execute permission field (e.g., `-rwxrw-sr--`).
+      The `setgid` is useful for shared directories where all files should belong to
+      a single group. 
+      
+      The `setgid` bit is represented by an `s` in the group's execute permission field
+      
+          (e.g., `-rwxrw-sr--`).
     action: |
       1. Create a directory and a new group for testing:
          sudo groupadd sharedgroup
@@ -297,41 +292,39 @@ tasks:
       The `sticky-bit` is a special permission bit typically used on
       directories with public write permissions. When set, it prevents
       users from deleting or renaming files in that directory unless
-      they own the file, are the owner of the directory, or are `root`.
+      they own the file, are the directory owner, or are `root`.
       
-      This is how `sticky-bit` prevents a user from deleting another
-      user's files in shared directories like `/tmp`. The bit is
-      represented by a `t` at the end of the permissions string
-      (e.g., `drwxrwxrwt`).
+      The bit is represented by a `t` at the end of the permissions
+      string (e.g., `drwxrwxrwt`).
     action: |
-      Let's create a temporary shared directory to demonstrate the sticky-bit.
+      Create a temporary shared directory to demonstrate the `sticky-bit`.
 
       1. As root (sudo) create a new directory and give it global write permissions:
          sudo mkdir /test-sticky
          sudo chmod 1777 /test-sticky
          ls -ld /test-sticky
 
-      2. As your regular user create a file in that directory. It will work.
+      2. As your regular user, create a file in that directory. It will work.
          touch /test-sticky/user1.txt
 
       3. Create a new user "test-user" and switch to it:
          sudo useradd test-user
          sudo su - test-user
 
-      4. Now, as the new user see if you can create a new file
+      4. As the new user, see if you can create a new file
          touch /test-sticky/user2.txt`
       
-      5. Also as the new user try to delete the first created file, it would fail.
+      5. Also, as the new user, try deleting the first file. (It would fail)
          rm /test-sticky/user1.txt
 
-      6. Done! type `exit` to return to your regular user
+      6. Type `exit` to return to your regular user
     verification: stat -c %a /test-sticky | grep -q 1777
     exit_code: 0
 
   - name: Understanding default permissions (umask)
     description: |
       The `umask` (user mask) command determines the default file
-      permissions for new files and directories created by a user.
+      permissions for new files and directories the user creates.
       It's a security measure that masks out certain permissions.
       
       The `umask` value is a three-digit octal number. The default is typically `0022`.
@@ -341,28 +334,28 @@ tasks:
       - **Files:** `666` (no execute) - `022` = `644` (`rw-r--r--`)
       - **Directories:** `777` (full access) - `022` = `755` (`rwxr-xr-x`)
     action: |
-      Let's observe your current `umask` and see how it affects a new file.
+      Observe your current `umask` and see how it affects a new file.
 
       1. View your current `umask`:
          umask
       
       2. Create a file and a directory:
-         touch ~/umask-test-file.txt
-         mkdir ~/umask-test-dir
+           touch ~/umask-test-file.txt
+           mkdir ~/umask-test-dir
 
-      3. Use `stat` to compare permissions to current your `umask` value.
-         stat -c "%a %n" ~/umask*
+      3. Use `stat` to compare permissions to your current `umask` value.
+           stat -c "%a %n" ~/umask*
 
-      4. Now let's change the umask and create a new set of files
-        umask 0000
-        touch ~/umask-test-file2.txt
-        mkdir ~/umask-test-dir2
+      4. Change the umask and create a new set of files
+           umask 0000
+           touch ~/umask-test-file2.txt
+           mkdir ~/umask-test-dir2
 
       5. Use `stat` again to compare
-         stat -c "%a %n" ~/umask*
+           stat -c "%a %n" ~/umask*
 
-      6. IMPORTANT: Rollback the change made to the umask
-        umask 0022
+      6. IMPORTANT: Roll back the change made to the umask
+           umask 0022
     verification: SKIP_CHECK
     exit_code: 0
 
@@ -373,10 +366,10 @@ tasks:
     action: |
       (see the directory structure with `tree ~/new` after each command)
 
-      1. Let's create a new directory in your home folder.
+      1. Create a new directory in your home folder.
          mkdir ~/new
       
-      2. Now, make another directory inside the `new` directory.
+      2. Make another directory inside the `new` directory.
          mkdir ~/new/dir1
 
       3. You can also create multiple directories at once.
@@ -396,7 +389,7 @@ tasks:
       The `touch` command is used to create a new, empty file or update
       the timestamp of an existing file.
     action: |
-      (see the new files create with `tree ~/new` after each command)
+      (see the new files created with `tree ~/new` after each command)
 
       1. Create a new file in your "new" directory.
          touch ~/new/my_file.txt
@@ -421,9 +414,9 @@ tasks:
 
           cp [source] [destination]
           
-      When copying directories, use the `-r` (recursive) option.
+      Use the `-r` (recursive) option to copy directories.
     action: |
-      Let's copy the file you just created.
+      Copy the file you just created.
 
       1. Copy `my_file.txt` to a new file named `my_file_copy.txt`:
          cp ~/new/my_file.txt ~/new/my_file_copy.txt
@@ -436,18 +429,18 @@ tasks:
   - name: Moving and renaming files and directories
     description: |
       The `mv` command is used to move files and directories. When the destination
-      is uses a new name, it effectively renames the file.
+      uses a new name, it effectively renames the file.
 
       The format is: 
       
         `mv [source] [destination]`
     action: |
-      Let's rename the file you just copied.
+      Rename the file you just copied.
 
       1. Rename `my_file_copy.txt` to `my_file_renamed.txt`:
          mv ~/new/my_file_copy.txt ~/new/my_file_renamed.txt
 
-      2. Now, move the renamed file to the other copy of the directory you created.
+      2. Move the renamed file to the other copy of the directory you created.
          mv ~/new/my_file_renamed.txt ~/new_copy/
 
     verification: ls -l ~/new_copy/my_file_renamed.txt
@@ -458,10 +451,10 @@ tasks:
       The `rm` command (remove) is used to delete files. By default, it
       does not prompt for confirmation. Use with caution!
 
-      WARNING: Deleting files is a permanent action, there is 
+      WARNING: Deleting files is a permanent action; there is 
                no "trash bin" to recover files deleted in the terminal
     action: |
-      Let's delete the `my_file_renamed.txt`.
+      Delete the `my_file_renamed.txt`.
 
       1. Delete the file:
          rm ~/new_copy/my_file_renamed.txt
@@ -471,10 +464,10 @@ tasks:
 
   - name: Deleting directories
     description: |
-      To delete a directory, you must use `rm` with the `-r` (recursive) option.
-      This deletes the directory and all of its contents.
+      To delete a directory, you must use `rm` with the `-r` (recursive) option,
+      deleting the directory and all of its contents.
     action: |
-      Let's delete the `new_directory` you created.
+      Delete the `new_directory` you created.
 
       1. Delete the directory:
          rm -r ~/new_directory
@@ -490,9 +483,9 @@ tasks:
       
         ln -s [target] [link_name]
 
-      Its a good practice to use full paths when creating symbolic links.
+      It's a good practice to use full paths when creating symbolic links.
 
-      When the target file is deleted or moved, the link is consider to be broken.
+      When the target file is deleted or moved, the link is considered broken.
 
       A symbolic link can also be used to create a shortcut to a directory.
     action: |
@@ -504,14 +497,13 @@ tasks:
       2. Create a symbolic link to the /tmp directory.
          ln -s /tmp ~/tmp_link
 
-      3. Create a new file to use it as target and then create a symbolic link to it.
+      3. Create a new file to use as target and then create a symbolic link to it.
          touch ~/target_file.txt
          ln -s ~/target_file.txt ~/target_link
         
-      4. Now, delete the target file and observe the effect on the link.
+      4. Delete the target file and observe the effect on the link.
          rm ~/target_file.txt
          ls -l ~/target_link
-      
     verification: ls -l ~/passwd_link | grep -q "/etc/passwd"
     exit_code: 0
 
@@ -519,24 +511,24 @@ tasks:
     description: |
       A *hard link* is a pointer to a file's position on the disk. (not to its name)
 
-      - Hard links share the exact same content and inode number.
+      - Hard links share the same content and inode number.
       - Deleting a hard link does not delete the target file.
       - Deleting the target file does not delete the hard link.
 
       "Hard Links are a great way to make backups of files."
     action: |
-      Let's create a file and then make a hard link to it.
+      Create a file and then make a hard link to it.
 
       1. Create a file containing the string "Music is life!" and check its inode number (`-i`):
          echo "Music is life!" > ~/my_target_file.txt
          ls -i ~/my_target_file.txt
 
-      2. Create a hard link to the file and check its inode number, and content:
+      2. Create a hard link to the file and check its inode number and content:
          ln ~/my_target_file.txt ~/my_hard_link.txt
          ls -li ~/my_target_file.txt ~/my_hard_link.txt
          more ~/my_target_file.txt ~/my_hard_link.txt
 
-      3. Now, delete the target file and observe content on the remaining hard link.
+      3. Delete the target file and observe the content on the remaining hard link.
          rm ~/my_target_file.txt
          more ~/my_hard_link.txt
 
@@ -545,45 +537,49 @@ tasks:
 
   - name: Archiving (tar)
     description: |
-      The `tar` command is used to create archives of files and directories.
-      It can be used with a single file or a whole directory.
+      The `tar` command is used to create files and directory archives.
 
-      The format is:
-
-        tar [options] [source] [destination]
-
+      The format is: tar [options] [source] [destination]
     action: |
-      Let's create an archive of a file and a directory.
-
       1. Create a test directory:
          mkdir ~/dir1
+
       2. Create a test file in the directory:
          touch ~/dir1/file1.txt
+
       3. Create an archive of the file and directory:
          tar -cvf archive.tar dir1/
+
       4. Create a new file outside the directory:
          touch ~/file2.txt
+
       5. Add the new file to the archive:
          tar -cvf archive.tar dir1/ file2.txt
+
       6. List the contents of the archive:
          tar -tf archive.tar
-      8. Create a new archive file but with compression
+
+      7. Create a new archive file but with compression
          tar -czvf archive_compressed.tar.gz dir1/ file2.txt
-      9. List the two archived files and compare their size.
+
+      8. List the two archived files and compare their size.
          du -sh archive*
     verification: ls -l ~/archive.tar.gz
     exit_code: 0
 
   - name: Unarchive and decompress files (tar)
     description: |
-      To unarchive use `-x` and `-z` to decompress
+      To unarchive, use `-x` and `-z` to decompress
     action: |
       1. Remove the dir1 directory and the file2.txt:
          rm -rf ~/dir1/ file2.txt
+
       2. Extract your compressed archive:
          tar -xvzf ~/archive_compressed.tar.gz
+
       3. Verify that your files are there:
          ls -l ~/dir1/ file2.txt
+
       4. Extract the archive into a new 'backups' directory:
          mkdir ~/backups
          tar -xvf ~/archive.tar -C ~/backups/
@@ -642,7 +638,7 @@ tasks:
   - name: Compressing (xz) and decompressing (xz)
     description: |
       `xz` is a powerful compression utility that uses the LZMA2 algorithm.
-      It generally provides the best compression ratio but is slower than
+      It generally provides the best compression ratio, but is slower than
       `gzip` and `bzip2`. Files compressed with `xz` end with `.xz`.
     action: |
       1. Create a test file:             touch ~/testfile3.txt
@@ -659,8 +655,6 @@ tasks:
       directories, locally or remotely. It is highly efficient because it
       only transfers the differences between the source and destination files.
     action: |
-      Let's synchronize a local directory to another directory.
-
       1. Create a local test directory with a file:
          mkdir ~/sync_test
          echo "Hello" > ~/sync_test/file1.txt

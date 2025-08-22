@@ -5,7 +5,7 @@
 
 # Configuration
 APP_NAME="chatty"
-APP_VERSION="2.1" # Must match Version in chatty.spec
+APP_VERSION="2.2" # Must match Version in chatty.spec
 SPEC_FILE="${APP_NAME}.spec"
 SOURCE_DIR_NAME="${APP_NAME}-${APP_VERSION}"
 

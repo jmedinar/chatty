@@ -50,14 +50,14 @@ tasks:
       A target represents a specific system state in which we group services
       and units that should be started or stopped together.
 
-      So for example, the `graphical.target` is a target that includes all the
+      For example, the `graphical.target` is a target that includes all the
       services and units needed to run a graphical user interface.
     action: |
       List all the available targets on your system.
       
           sudo systemctl list-unit-files --type=target
 
-        static: Not enabled by default but can be started manually
+        static: Not enabled by default, but can be started manually
         enabled: Will be started automatically at boot time
         disabled: Not enabled and will not be started automatically
         alias: Not targets themselves, but rather aliases for another target.
@@ -97,7 +97,7 @@ tasks:
       2. Use the `ps` command to view running processes:
           ps -ef
 
-      3. Use the `ps` command to see your own processes:
+      3. Use the `ps` command to see your processes:
           ps -fu $(whoami)
 
       4. Add the `-l` option to see more details:
@@ -143,8 +143,8 @@ tasks:
 
   - name: Foreground and background processes
     description: |
-      Processes can run in the foreground or background, in other words,
-      attached to your visible terminal or to a terminal running in the background.
+      Processes can run in the foreground or background; in other words,
+      attached to your visible terminal or a terminal running in the background.
 
       Use the `&` symbol to run a command in the background
       Use the `jobs` command to list background jobs
@@ -195,19 +195,19 @@ tasks:
 
     action: |
       1. Check the status of the `sshd` service:
-          sudo systemctl status sshd
+            sudo systemctl status sshd
 
       2. Start the `sshd` service:
-          sudo systemctl start sshd
+            sudo systemctl start sshd
 
       3. Enable the `sshd` service to start at boot time:
-          sudo systemctl enable sshd
+            sudo systemctl enable sshd
 
       4. Restart the `sshd` service:
-          sudo systemctl restart sshd
+            sudo systemctl restart sshd
 
       5. Stop the `sshd` service:
-          sudo systemctl stop sshd
+            sudo systemctl stop sshd
       
     verification: SKIP_CHECK
     exit_code: 0
@@ -227,26 +227,26 @@ tasks:
 
     action: |
       1. List all active services:
-          sudo systemctl list-units --type=service
+            sudo systemctl list-units --type=service
 
       2. Check the status of the `crond` service:
-          sudo systemctl status crond.service
+            sudo systemctl status crond.service
 
       3. List all unit files:
-          sudo systemctl list-unit-files --type=service
+            sudo systemctl list-unit-files --type=service
 
       4. Check if the `crond` service is enabled:
-          sudo systemctl is-enabled crond.service
+            sudo systemctl is-enabled crond.service
 
       5. Check if the `crond` service is active:
-          sudo systemctl is-active crond.service
+            sudo systemctl is-active crond.service
     verification: SKIP_CHECK
     exit_code: 0
 
   - name: Scheduling jobs with `at`
     description: |
-      The `at` command is used to schedule ONE-TIME jobs to run at a specific time.
-      It allows you to run commands or scripts at a later time without needing to
+      The `at` command schedules ONE-TIME jobs to run at a specific time.
+      It allows you to run commands or scripts later without needing to
       keep a terminal open.
 
       Common options include:
@@ -277,7 +277,7 @@ tasks:
 
   - name: Scheduling jobs with `cron`
     description: |
-      The `cron` daemon is used to schedule recurring jobs to run at specific times.
+      The `cron` daemon schedules recurring jobs to run at specific times.
       The `crontab` command is used to manage user-specific cron jobs.
 
       Common options include:
@@ -307,11 +307,13 @@ tasks:
   - name: Scheduling jobs with `systemd timers`
     description: |
       Timers are a great alternative to `cron` jobs, as they are managed by
-      `systemd` and can be easily monitored. They are configured with two files:
-      a `.service` file that defines a task, and a `.timer` file that defines the schedule.
+      `systemd` can be easily monitored. They are configured with two files:
+      
+        - `.service` file that defines a task
+        - `.timer` file that defines the schedule
 
-      A regular user can create their own timers without `sudo` by placing the
-      files in `~/.config/systemd/user/` and using the `--user` flag.
+      A regular user can create timers by placing them in the 
+      `~/.config/systemd/user/` directory, and using the `--user` flag.
       
       Common options include:
         - `systemctl list-timers`: List all active timers.
@@ -351,7 +353,7 @@ tasks:
       6. Check the status of your timer:
             systemctl --user status test-timer.timer
       
-      7. After a minute list your timers again to see the new timer:
+      7. After a minute, list your timers again to see the new timer:
             systemctl --user list-timers
 
       8. Check the output in `/tmp/timer_test.log`:
