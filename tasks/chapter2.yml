@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://schemastore.org/yamllint.json
 # Example format and required fields
-  # - name: 
+  # - name: test
   #   description: 
   #   action: 
   #   verification: 
@@ -535,7 +535,7 @@ tasks:
       manual page, which includes its syntax, a detailed description,
       options, and examples.
     action: |
-      man free
+      In your other terminal, run 'man free'
 
       When finish reading, press `q` to return to your terminal.
     verification: SKIP_CHECK
