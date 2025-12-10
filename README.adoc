@@ -10,7 +10,7 @@
 // Introduction
 ChaTTY is an interactive learning framework designed to guide users through Linux terminal exercises. It leverages YAML files to define structured tasks, providing clear descriptions, suggested actions, and robust verification mechanisms. With its user-friendly interface, colored output, and simple key-based navigation, ChaTTY offers an engaging way to learn and practice Linux commands directly in your terminal.
 
-image::images/chatty_logo.png[]
+image::images/chatty_logo.png[width=50%, align=center]
 
 == Features
 
